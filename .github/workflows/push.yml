@@ -22,6 +22,8 @@ jobs:
       - run: node build.js
       - name: Bump version and publish
         run: |
+            git config user.name ci
+            git config user.email ci@openbible.io
             VERSION=$(npm version patch)
             git push --tags origin master
             npm publish --provenance --access public
