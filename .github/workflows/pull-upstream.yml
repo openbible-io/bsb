@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
-  # for provenance
+  # provenance
   id-token: write
 
 jobs:
@@ -16,20 +16,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           registry-url: 'https://registry.npmjs.org'
-      - run: npm ci
-      - run: ./download.sh
-      - name: Push and publish
-        run: |
-          git config user.name ci
-          git config user.email ci@openbible.io
-          git status -s
-          if [[ -n "$(git status -s)" ]]; then
-            node build.js
-            git add .
-            git commit -m 'Download + parse new version'
-            VERSION=$(npm version patch)
-            git push --tags origin master
-            npm publish --provenance --access public
-          fi
+      - run: ./ci.sh --download
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

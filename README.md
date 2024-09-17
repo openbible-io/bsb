@@ -1,19 +1,8 @@
-# en_bsb &middot; [![GitHub license](https://img.shields.io/github/license/openbible-io/en_bsb?style=for-the-badge)](./LICENSE) ![npm version](https://img.shields.io/npm/v/@openbible/en_bsb.svg?style=for-the-badge)
+# en_bsb
+[![GitHub license](https://img.shields.io/github/license/openbible-io/en_bsb?style=for-the-badge)](./LICENSE)
+![npm version](https://img.shields.io/npm/v/@openbible/en_bsb.svg?style=for-the-badge)
 
 Source control and normalization for [Berean Standard Bible](https://bereanbible.com/).
-
-## Running
-Download interlinear XLSX tables and per-book USFM using [CURL.](https://curl.se/)
-These files are checked-in, so you need not run this unless you want to download the latest.
-```sh
-./download.sh
-```
-
-Transform downloaded files into a pipe-separated `dist/bibles/en_bsb.csv`.
-```sh
-npm install
-node ./build.js
-```
 
 ## Schema
 - book
@@ -33,6 +22,19 @@ The following XLSX columns are purposefully excluded:
 - BSB Sort: This is just the row number.
 - Transliteration: A better version is included in amalgamated Hebrew/Greek sources.
 - BDB/Thayers: More complete and deduped versions are available elsewhere.
+
+## Running
+Download interlinear XLSX tables and per-book USFM using [CURL.](https://curl.se/)
+These files are checked-in, so you need not run this unless you want to download the latest.
+```sh
+./pull.sh
+```
+
+Transform downloaded files into a pipe-separated `dist/bibles/en_bsb.csv`.
+```sh
+npm install
+node ./build.js
+```
 
 ## Continuous Integration
 Downloads daily. If there's a difference will push, build, and publish a new CSV.

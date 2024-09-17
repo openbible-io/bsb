@@ -4,9 +4,8 @@ on:
     branches:
       - master
 permissions:
-  # tagging
   contents: write
-  # for provenance
+  # provenance
   id-token: write
 
 jobs:
@@ -17,13 +16,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           registry-url: 'https://registry.npmjs.org'
-      - run: npm ci
-      - run: ./download.sh
-      - run: node build.js
-      - name: Bump version and publish
-        run: |
-            git config user.name ci
-            git config user.email ci@openbible.io
-            VERSION=$(npm version patch)
-            git push --tags origin master
-            npm publish --provenance --access public
+      - run: ./ci.sh
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
