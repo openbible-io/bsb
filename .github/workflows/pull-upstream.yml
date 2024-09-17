@@ -20,9 +20,12 @@ jobs:
           git config user.name ci
           git config user.email ci@openbible.io
           if [[ -n "$(git status -s)" ]]; then
-            npm version patch
+            VERSION=$(npm version patch)
             git add .
             git commit -m 'Download + parse new version'
-            git push origin master
-            npm publish
+            git tag $VERSION
+            git push --tags origin master
+            npm publish --provenance --access public
           fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
