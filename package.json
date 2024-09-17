@@ -5,8 +5,9 @@
 	"type": "module",
 	"license": "CC0",
 	"repository": {
-		"url": "https://github.com/openbible-io/en_bsb"
+		"url": "git+https://github.com/openbible-io/en_bsb.git"
 	},
+	"scripts": {},
 	"devDependencies": {
 		"exceljs": "^4.4.0",
 		"usfm-js": "^3.4.3"
