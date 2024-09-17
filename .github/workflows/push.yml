@@ -1,0 +1,27 @@
+name: Publish
+on:
+  push:
+    branches:
+      - master
+permissions:
+  # tagging
+  contents: write
+  # for provenance
+  id-token: write
+
+jobs:
+  pull-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci
+      - run: download.sh
+      - run: node build.js
+      - name: Bump version and publish
+        run: |
+            VERSION=$(npm version patch)
+            git push --tags origin master
+            npm publish --provenance --access public
