@@ -1,4 +1,4 @@
-# en_bsb &middot; [![GitHub license](https://img.shields.io/github/license/openbible-io/en_bsb)](https://github.com/facebook/react/blob/main/LICENSE) [![npm version](https://img.shields.io/npm/v/react.svg?style=flat)]
+# en_bsb &middot; [![GitHub license](https://img.shields.io/github/license/openbible-io/en_bsb?style=for-the-badge)](./LICENSE) ![npm version](https://img.shields.io/npm/v/@openbible/en_bsb.svg?style=for-the-badge)
 
 Source control and normalization for [Berean Standard Bible](https://bereanbible.com/).
 
