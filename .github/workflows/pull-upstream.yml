@@ -1,0 +1,28 @@
+name: Pull upstream
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+
+jobs:
+  pull-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm install
+      - run: ./download.sh
+      - run: node build.js
+      - name: Push and publish
+        run: |
+          git config user.name ci
+          git config user.email ci@openbible.io
+          if [[ -n "$(git status -s)" ]]; then
+            npm version patch
+            git add .
+            git commit -m 'Download + parse new version'
+            git push origin master
+            npm publish
+          fi
