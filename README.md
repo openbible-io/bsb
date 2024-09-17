@@ -1,9 +1,10 @@
-# en_bsb
+# en_bsb &middot; [![GitHub license](https://img.shields.io/github/license/openbible-io/en_bsb)](https://github.com/facebook/react/blob/main/LICENSE) [![npm version](https://img.shields.io/npm/v/react.svg?style=flat)]
 
-[Berean Standard Bible](https://bereanbible.com/).
+Source control and normalization for [Berean Standard Bible](https://bereanbible.com/).
 
 ## Running
 Download interlinear XLSX tables and per-book USFM using [CURL.](https://curl.se/)
+These files are checked-in, so you need not run this unless you want to download the latest.
 ```sh
 ./download.sh
 ```
