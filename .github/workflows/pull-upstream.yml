@@ -14,13 +14,13 @@ jobs:
       - uses: actions/setup-node@v4
       - run: npm install
       - run: ./download.sh
-      - run: node build.js
       - name: Push and publish
         run: |
           git config user.name ci
           git config user.email ci@openbible.io
           if [[ -n "$(git status -s)" ]]; then
-            VERSION=$(npm version patch)
+            node build.js
+            VERSION=$(npm version patch --no-commit-hooks)
             git add .
             git commit -m 'Download + parse new version'
             git tag $VERSION
