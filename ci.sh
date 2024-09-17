@@ -6,10 +6,8 @@ node build.js
 
 patch() {
 	npm version patch
-	if [[ "$CI" == "true" ]]; then
-		git push --tags origin master
-		npm publish --provenance --access public
-	fi
+	git push --tags origin master
+	npm publish --provenance --access public
 }
 
 git config user.name ci
