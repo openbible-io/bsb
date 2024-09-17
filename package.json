@@ -1,6 +1,6 @@
 {
 	"name": "@openbible/en_bsb",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"description": "Berean Standard Bible data and CSV parser.",
 	"type": "module",
 	"license": "CC0",
