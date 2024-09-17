@@ -8,6 +8,8 @@ on:
       - master
 permissions:
   contents: write
+  # for provenance
+  id-token: write
 
 jobs:
   pull-upstream:
