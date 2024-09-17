@@ -18,7 +18,7 @@ jobs:
         with:
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
-      - run: download.sh
+      - run: ./download.sh
       - run: node build.js
       - name: Bump version and publish
         run: |
