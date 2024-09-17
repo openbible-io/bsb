@@ -1,18 +1,20 @@
 npm ci
-if [[ $1 == "--pull" ]]; then
+if [[ "$GITHUB_EVENT_NAME" != "push" ]]; then
 	./pull.sh
 fi
 node build.js
 
 patch() {
 	npm version patch
-	git push --tags origin master
-	npm publish --provenance --access public
+	if [[ "$CI" == "true" ]]; then
+		git push --tags origin master
+		npm publish --provenance --access public
+	fi
 }
 
 git config user.name ci
 git config user.email ci@openbible.io
-if [[ $1 == "--pull" ]]; then
+if [[ "$GITHUB_EVENT_NAME" != "push" ]]; then
 	git status -s
 	if [[ -n "$(git status -s)" ]]; then
 		git add .
