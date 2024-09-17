@@ -6,7 +6,8 @@ node build.js
 
 if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
 	# Do a release
-	BUMPED=$(git describe --tags --abbrev=0 | awk -F. -v OFS=. '{$NF += 1 ; print}')
+	LATEST=$(git describe --tags --abbrev=0)
+	BUMPED=$(echo ${LATEST:=v0.0.0} | awk -F. -v OFS=. '{$NF += 1 ; print}')
 	git tag $BUMPED
 	git push --tags origin master
 	npm version --no-git-tag-version $BUMPED
