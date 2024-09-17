@@ -12,10 +12,12 @@ permissions:
   id-token: write
 
 jobs:
-  pull-upstream:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
       - uses: actions/setup-node@v4
         with:
           registry-url: 'https://registry.npmjs.org'
