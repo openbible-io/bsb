@@ -15,9 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: npm install
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        with:
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci
       - run: ./download.sh
       - name: Push and publish
         run: |
@@ -33,3 +33,5 @@ jobs:
             npm whoami
             npm publish --provenance --access public
           fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
