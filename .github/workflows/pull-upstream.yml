@@ -25,6 +25,7 @@ jobs:
             git commit -m 'Download + parse new version'
             VERSION=$(npm version patch)
             git push --tags origin master
+            npm whoami
             npm publish --provenance --access public
           fi
         env:
