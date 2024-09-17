@@ -37,4 +37,5 @@ node ./build.js
 ```
 
 ## Continuous Integration
-Downloads daily. If there's a difference will push, build, and publish a new CSV.
+Downloads daily. If there's a difference will push to master, but won't build or release until
+reviewed.
