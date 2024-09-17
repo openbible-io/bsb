@@ -18,12 +18,12 @@ jobs:
         run: |
           git config user.name ci
           git config user.email ci@openbible.io
+          git status -s
           if [[ -n "$(git status -s)" ]]; then
             node build.js
-            VERSION=$(npm version patch --no-commit-hooks)
             git add .
             git commit -m 'Download + parse new version'
-            git tag $VERSION
+            VERSION=$(npm version patch)
             git push --tags origin master
             npm publish --provenance --access public
           fi
