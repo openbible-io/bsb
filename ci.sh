@@ -6,6 +6,7 @@ node build.js
 
 if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
 	# Do a release
+	git fetch --tags
 	LATEST=$(git describe --tags --abbrev=0)
 	BUMPED=$(echo ${LATEST:=v0.0.0} | awk -F. -v OFS=. '{$NF += 1 ; print}')
 	git tag $BUMPED
