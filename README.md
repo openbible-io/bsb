@@ -2,7 +2,7 @@
 [![GitHub license](https://img.shields.io/github/license/openbible-io/en_bsb?style=for-the-badge)](./LICENSE)
 [![npm version](https://img.shields.io/npm/v/@openbible/en_bsb.svg?style=for-the-badge)](https://www.npmjs.com/package/@openbible/en_bsb)
 
-Source control and normalization for [Berean Standard Bible](https://bereanbible.com/).
+Source control and normalization for the [Berean Standard Bible](https://bereanbible.com/).
 
 ## Schema
 - book
@@ -21,8 +21,7 @@ Source control and normalization for [Berean Standard Bible](https://bereanbible
 
 The following XLSX columns are purposefully excluded:
 - BSB Sort: This is just the row number.
-- Transliteration: A better version is included in amalgamated Hebrew/Greek sources.
-- BDB/Thayers: More complete and deduped versions are available elsewhere.
+- BDB/Thayers: Greatly increases file size. More complete and deduped versions are available elsewhere.
 
 ## Running
 Download interlinear XLSX tables and per-book USFM using [CURL.](https://curl.se/)
