@@ -8,12 +8,17 @@ if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
 	# Do a release
 	git fetch --tags
 	git tag
-	LATEST=$(git describe --tags --abbrev=0)
-	echo "Latest is $LATEST"
-	BUMPED=$(echo ${LATEST:=v0.0.0} | awk -F. -v OFS=. '{$NF += 1 ; print}')
-	git tag $BUMPED
-	git push --tags origin master
-	npm version --no-git-tag-version $BUMPED
+	# Manual tag, trust it does not need a bump.
+	VERSION=$(git tag --points-at HEAD)
+	if [[ -z $VERSION ]]; then
+		# Last tagged version by date.
+		VERSION=$(git tag --sort=committerdate | tail -1)
+		echo "No manual tag, bumping $VERSION"
+		VERSION=$(echo ${VERSION:=v0.0.0} | awk -F. -v OFS=. '{$NF += 1 ; print}')
+		git tag $VERSION
+		git push --tags origin master
+	fi
+	npm version --no-git-tag-version $VERSION
 	npm publish --provenance --access public
 else
 	# Push an update for later review + release.
