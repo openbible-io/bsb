@@ -78,9 +78,12 @@ const books = {
 /**
  * Flatten verses so we can look if previous verse object is a paragraph without
  * having to maybe traverse back a verse.
+ *
+ * @param {string} path
+ * @returns {{ tag: string, text?: string}[]}
  */
 function parseUsfm(path) {
-	console.warn('parsing', path);
+	console.log('parsing', path);
 	const usfm = readFileSync(path, 'utf8');
 	const chapters = toJSON(usfm).chapters;
 	Object.keys(chapters).forEach(cnum => {
@@ -95,112 +98,118 @@ function parseUsfm(path) {
 	return chapters;
 }
 
-function parseLang(lang) {
-	switch (lang) {
+/**
+ * @param {string} eng english language name
+ * @returns {string} ISO 639-2 code
+ */
+function parseLang(eng) {
+	switch (eng) {
 		case 'Greek': return 'grc';
 		case 'Hebrew': return 'heb';
 		case 'Aramaic': return 'arc';
-		default: throw Error(`unknown language ${lang}`);
+		default: throw Error(`unknown language ${eng}`);
 	}
 }
 
-async function parse() {
-	console.warn('parsing', xlsxFname);
-	const workbookReader = new ExcelJS.stream.xlsx.WorkbookReader(xlsxFname);
+console.log('parsing', xlsxFname);
+const outpath = join(outdir, 'bibles', 'en_bsb.txt');
+const out = csv.format({ headers: true, delimiter: '|' });
+mkdirSync(dirname(outpath), { recursive: true });
+const outStream = createWriteStream(outpath);
+out.pipe(outStream);
 
-	const out = csv.format({ headers: true, delimiter: '|' });
-	const outpath = join(outdir, 'bibles', 'en_bsb.txt');
-	mkdirSync(dirname(outpath), { recursive: true });
-	const outStream = createWriteStream(outpath);
-	out.pipe(outStream);
+const workbook = new ExcelJS.stream.xlsx.WorkbookReader(xlsxFname);
 
-	let bcv = {};
-	let chapters;
+let bcv = {};
+let chapters;
 
-	for await (const worksheetReader of workbookReader) {
-		if (worksheetReader.name != 'biblosinterlinear96') continue;
-		for await (const r of worksheetReader) {
-		 	if (r.values.length != 18 || r.number < 3) continue;
-		 	let [
-		 		_,
-		 		sort_heb,
-		 		sort_grk,
-		 		_sort_bsb,
-		 		og_lang,
-		 		_verse_n,
-		 		og_word,
-		 		__,
-		 		og_transliteration,
-		 		og_parsing,
-		 		___,
-		 		strong,
-		 		verse,
-		 		heading,
-		 		_xrefs,
-		 		text,
-		 		footnote,
-		 		_og_lex
-		 	] = r.values;
-		 	if (verse) {
-		 		const match = verse.match(/^(.*) (\d+):(\d+)$/);
-		 		if (!match) {
-		 			console.error('invalid verse', verse);
-		 			continue;
-		 		}
-		 		const nextBcv = {
-		 			book: books[match[1]],
-		 			chapter: parseInt(match[2]),
-		 			verse: parseInt(match[3]),
-		 		};
-		 		if (nextBcv.book != bcv.book) {
-		 			let index = Object.values(books).indexOf(nextBcv.book);
-		 			if (index >= Object.values(books).indexOf('mat')) index += 1;
-		 			const path = `bsb_usfm/${(index + 1).toString().padStart(2, '0')}${nextBcv.book.toLocaleUpperCase()}BSB.usfm`;
-		 			chapters = parseUsfm(path);
-		 		}
-		 		bcv = nextBcv;
-		 	}
-		 	if (!bcv) continue;
+let interlinear;
+for await (const worksheet of workbook) {
+	if (worksheet.name == 'biblosinterlinear96') {
+		interlinear = worksheet;
+		break;
+	}
+}
 
-		 	text = text
-		 		.toString() // numbers should be strings.
-		 		.replace(/^ *(-|vvv|(\. *){3})/m, '') // empty translation
-		 		.replace(/\[|\]/g, '') // ???
-		 		.replace(/\{|\}/g, '') // inserted words
-		 		.replace(/(^[\p{P} ]+)/um, (_, b) => b.replaceAll(' ', '')) // start punctuation has added spaces
-		 		.replace(/([\p{P} ]+)$/um, (_, b) => b.replaceAll(' ', '')) // end punctuation has added spaces
-		 		.trim(); // rows implicitly have added whitespace.
-
-		 	const verses = chapters[bcv.chapter.toString()];
-		 	const textI = text && verses.findIndex(v => v.type == 'text' && v.text.trim().startsWith(text.trim()));
-		 	const prevObj = verses[textI - 1];
-
-		 	let before = '';
-		 	if (
-		 		prevObj?.type == 'paragraph' ||
-		 		prevObj?.tag?.startsWith('l') ||
-		 		prevObj?.tag?.startsWith('q')
-		 	) before = prevObj.tag;
-
-		 	out.write({
-		 		book: bcv.book,
-		 		chapter: bcv.chapter,
-		 		verse: bcv.verse,
-		 		og_lang: parseLang(og_lang),
-		 	 	og_word,
-		 	 	og_order: og_lang == 'Greek' ? sort_grk : sort_heb,
-		 	 	og_parsing,
-		 		og_transliteration,
-		 	 	before,
-		 	 	text,
-		 	 	strong,
-		 	 	heading,
-		 	 	footnote,
-		 	});
+for await (const row of interlinear) {
+	if (row.values.length != 18 || row.number < 3) continue;
+	let [
+		_,
+		sort_heb,
+		sort_grk,
+		_sort_bsb,
+		og_lang,
+		_verse_n,
+		og_word,
+		__,
+		og_transliteration,
+		og_parsing,
+		___,
+		strong,
+		verse,
+		heading,
+		_xrefs,
+		text,
+		footnote,
+		_og_lex
+	] = row.values;
+	if (verse) {
+		const match = verse.match(/^(.*) (\d+):(\d+)$/);
+		if (!match) {
+			console.error('invalid verse', verse);
+			continue;
 		}
+		const nextBcv = {
+			book: books[match[1]],
+			chapter: parseInt(match[2]),
+			verse: parseInt(match[3]),
+		};
+		if (nextBcv.book != bcv.book) {
+			let index = Object.values(books).indexOf(nextBcv.book);
+			if (index >= Object.values(books).indexOf('mat')) index += 1;
+			const path = `bsb_usfm/${(index + 1).toString().padStart(2, '0')}${nextBcv.book.toLocaleUpperCase()}BSB.usfm`;
+			chapters = parseUsfm(path);
+		}
+		bcv = nextBcv;
 	}
+	if (!bcv) continue;
 
-	out.end();
+	text = text
+		.toString() // numbers should be strings.
+		.replace(/^ *(-|vvv|(\. *){3})/m, '') // empty translation
+		.replace(/\[|\]/g, '') // ???
+		.replace(/\{|\}/g, '') // inserted words
+		.replace(/(^[\p{P} ]+)/um, (_, b) => b.replaceAll(' ', '')) // start punctuation has added spaces
+		.replace(/([\p{P} ]+)$/um, (_, b) => b.replaceAll(' ', '')) // end punctuation has added spaces
+		.trim(); // rows implicitly have added whitespace.
+
+	const verses = chapters[bcv.chapter.toString()];
+	const textI = text && verses.findIndex(v => v.type == 'text' && v.text.trim().startsWith(text.trim()));
+	const prevObj = verses[textI - 1];
+
+	let before = '';
+	if (
+		prevObj?.type == 'paragraph' ||
+		prevObj?.tag?.startsWith('l') ||
+		prevObj?.tag?.startsWith('q')
+	) before = prevObj.tag;
+
+	out.write({
+		book: bcv.book,
+		chapter: bcv.chapter,
+		verse: bcv.verse,
+		og_lang: parseLang(og_lang),
+		og_word,
+		og_order: og_lang == 'Greek' ? sort_grk : sort_heb,
+		og_parsing,
+		og_transliteration,
+		before,
+		text,
+		strong,
+		heading,
+		footnote,
+	});
 }
 
-await parse();
+out.end();
+console.log('wrote', outpath);
