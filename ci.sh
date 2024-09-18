@@ -7,7 +7,6 @@ node build.js
 if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
 	# Do a release
 	git fetch --tags
-	git tag
 	# Manual tag, trust it does not need a bump.
 	VERSION=$(git tag --points-at HEAD)
 	if [[ -z $VERSION ]]; then
