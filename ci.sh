@@ -7,10 +7,8 @@ node build.js
 if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
 	# Do a release
 	git fetch --tags
-	# Manual tag, trust it does not need a bump.
 	VERSION=$(git tag --points-at HEAD)
 	if [[ -z $VERSION ]]; then
-		# Last tagged version by date.
 		VERSION=$(git tag --sort=committerdate | tail -1)
 		echo "No manual tag, bumping $VERSION"
 		VERSION=$(echo ${VERSION:=v0.0.0} | awk -F. -v OFS=. '{$NF += 1 ; print}')
