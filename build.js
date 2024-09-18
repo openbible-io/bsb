@@ -1,10 +1,10 @@
-import Exceljs from 'exceljs';
+import ExcelJS from 'exceljs';
 import csv from 'fast-csv';
 import { readFileSync, createWriteStream, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { toJSON } from 'usfm-js';
 
-const xlsx_tmp = 'bsb_tables.xlsx';
+const xlsxFname = 'bsb_tables.xlsx';
 const outdir = 'dist';
 const books = {
 	'Genesis': 'gen',
@@ -105,10 +105,8 @@ function parseLang(lang) {
 }
 
 async function parse() {
-	console.warn('parsing', xlsx_tmp);
-	const workbook = new Exceljs.Workbook();
-	await workbook.xlsx.readFile(xlsx_tmp);
-	const worksheet = workbook.getWorksheet('biblosinterlinear96');
+	console.warn('parsing', xlsxFname);
+	const workbookReader = new ExcelJS.stream.xlsx.WorkbookReader(xlsxFname);
 
 	const out = csv.format({ headers: true, delimiter: '|' });
 	const outpath = join(outdir, 'bibles', 'en_bsb.txt');
@@ -118,85 +116,89 @@ async function parse() {
 
 	let bcv = {};
 	let chapters;
-	worksheet.eachRow((r, i) => {
-		if (r.values.length != 18 || i < 3) return;
-		let [
-			_,
-			sort_heb,
-			sort_grk,
-			sort_bsb,
-			og_lang,
-			verse_n,
-			og_word,
-			__,
-			og_transliteration,
-			og_parsing,
-			___,
-			strong,
-			verse,
-			heading,
-			xrefs,
-			text,
-			footnote,
-			og_lex
-		] = r.values;
-		if (verse) {
-			const match = verse.match(/^(.*) (\d+):(\d+)$/);
-			if (!match) {
-				console.error('invalid verse', verse);
-				return;
-			}
-			const nextBcv = {
-				book: books[match[1]],
-				chapter: parseInt(match[2]),
-				verse: parseInt(match[3]),
-			};
-			if (nextBcv.book != bcv.book) {
-				let index = Object.values(books).indexOf(nextBcv.book);
-				if (index >= Object.values(books).indexOf('mat')) index += 1;
-				const path = `bsb_usfm/${(index + 1).toString().padStart(2, '0')}${nextBcv.book.toLocaleUpperCase()}BSB.usfm`;
-				chapters = parseUsfm(path);
-			}
-			bcv = nextBcv;
+
+	for await (const worksheetReader of workbookReader) {
+		if (worksheetReader.name != 'biblosinterlinear96') continue;
+		for await (const r of worksheetReader) {
+		 	if (r.values.length != 18 || r.number < 3) continue;
+		 	let [
+		 		_,
+		 		sort_heb,
+		 		sort_grk,
+		 		_sort_bsb,
+		 		og_lang,
+		 		_verse_n,
+		 		og_word,
+		 		__,
+		 		og_transliteration,
+		 		og_parsing,
+		 		___,
+		 		strong,
+		 		verse,
+		 		heading,
+		 		_xrefs,
+		 		text,
+		 		footnote,
+		 		_og_lex
+		 	] = r.values;
+		 	if (verse) {
+		 		const match = verse.match(/^(.*) (\d+):(\d+)$/);
+		 		if (!match) {
+		 			console.error('invalid verse', verse);
+		 			continue;
+		 		}
+		 		const nextBcv = {
+		 			book: books[match[1]],
+		 			chapter: parseInt(match[2]),
+		 			verse: parseInt(match[3]),
+		 		};
+		 		if (nextBcv.book != bcv.book) {
+		 			let index = Object.values(books).indexOf(nextBcv.book);
+		 			if (index >= Object.values(books).indexOf('mat')) index += 1;
+		 			const path = `bsb_usfm/${(index + 1).toString().padStart(2, '0')}${nextBcv.book.toLocaleUpperCase()}BSB.usfm`;
+		 			chapters = parseUsfm(path);
+		 		}
+		 		bcv = nextBcv;
+		 	}
+		 	if (!bcv) continue;
+
+		 	text = text
+		 		.toString() // numbers should be strings.
+		 		.replace(/^ *(-|vvv|(\. *){3})/m, '') // empty translation
+		 		.replace(/\[|\]/g, '') // ???
+		 		.replace(/\{|\}/g, '') // inserted words
+		 		.replace(/(^[\p{P} ]+)/um, (_, b) => b.replaceAll(' ', '')) // start punctuation has added spaces
+		 		.replace(/([\p{P} ]+)$/um, (_, b) => b.replaceAll(' ', '')) // end punctuation has added spaces
+		 		.trim(); // rows implicitly have added whitespace.
+
+		 	const verses = chapters[bcv.chapter.toString()];
+		 	const textI = text && verses.findIndex(v => v.type == 'text' && v.text.trim().startsWith(text.trim()));
+		 	const prevObj = verses[textI - 1];
+
+		 	let before = '';
+		 	if (
+		 		prevObj?.type == 'paragraph' ||
+		 		prevObj?.tag?.startsWith('l') ||
+		 		prevObj?.tag?.startsWith('q')
+		 	) before = prevObj.tag;
+
+		 	out.write({
+		 		book: bcv.book,
+		 		chapter: bcv.chapter,
+		 		verse: bcv.verse,
+		 		og_lang: parseLang(og_lang),
+		 	 	og_word,
+		 	 	og_order: og_lang == 'Greek' ? sort_grk : sort_heb,
+		 	 	og_parsing,
+		 		og_transliteration,
+		 	 	before,
+		 	 	text,
+		 	 	strong,
+		 	 	heading,
+		 	 	footnote,
+		 	});
 		}
-		if (!bcv) return;
-
-		text = text
-			.toString() // numbers should be strings.
-			.replace(/^ *(-|vvv|(\. *){3})/m, '') // empty translation
-			.replace(/\[|\]/g, '') // ???
-			.replace(/\{|\}/g, '') // inserted words
-			.replace(/(^[\p{P} ]+)/um, (_, b) => b.replaceAll(' ', '')) // start punctuation has added spaces
-			.replace(/([\p{P} ]+)$/um, (_, b) => b.replaceAll(' ', '')) // end punctuation has added spaces
-			.trim(); // rows implicitly have added whitespace.
-
-		const verses = chapters[bcv.chapter.toString()];
-		const textI = text && verses.findIndex(v => v.type == 'text' && v.text.trim().startsWith(text.trim()));
-		const prevObj = verses[textI - 1];
-
-		let before = '';
-		if (
-			prevObj?.type == 'paragraph' ||
-			prevObj?.tag?.startsWith('l') ||
-			prevObj?.tag?.startsWith('q')
-		) before = prevObj.tag;
-
-		out.write({
-			book: bcv.book,
-			chapter: bcv.chapter,
-			verse: bcv.verse,
-			og_lang: parseLang(og_lang),
-		 	og_word,
-		 	og_order: og_lang == 'Greek' ? sort_grk : sort_heb,
-		 	og_parsing,
-			og_transliteration,
-		 	before,
-		 	text,
-		 	strong,
-		 	heading,
-		 	footnote,
-		});
-	});
+	}
 
 	out.end();
 }
