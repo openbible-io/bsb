@@ -1,5 +1,5 @@
 import ExcelJS from 'exceljs';
-import csv from 'fast-csv';
+import fastcsv from 'fast-csv';
 import { readFileSync, createWriteStream, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { toJSON } from 'usfm-js';
@@ -112,8 +112,8 @@ function parseLang(eng) {
 }
 
 console.log('parsing', xlsxFname);
-const outpath = join(outdir, 'bibles', 'en_bsb.txt');
-const out = csv.format({ headers: true, delimiter: '|' });
+const outpath = join(outdir, 'bibles', 'en_bsb.csv');
+const out = fastcsv.format({ headers: true, delimiter: '|' });
 mkdirSync(dirname(outpath), { recursive: true });
 const outStream = createWriteStream(outpath);
 out.pipe(outStream);
@@ -177,8 +177,6 @@ for await (const row of interlinear) {
 	text = text
 		.toString() // numbers should be strings.
 		.replace(/^ *(-|vvv|(\. *){3})/m, '') // empty translation
-		.replace(/\[|\]/g, '') // ???
-		.replace(/\{|\}/g, '') // inserted words
 		.replace(/(^[\p{P} ]+)/um, (_, b) => b.replaceAll(' ', '')) // start punctuation has added spaces
 		.replace(/([\p{P} ]+)$/um, (_, b) => b.replaceAll(' ', '')) // end punctuation has added spaces
 		.trim(); // rows implicitly have added whitespace.
