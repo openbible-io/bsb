@@ -112,7 +112,7 @@ function parseLang(eng) {
 }
 
 console.log('parsing', xlsxFname);
-const outpath = join(outdir, 'bibles', 'en_bsb.csv');
+const outpath = join(outdir, 'en_bsb.csv');
 const out = fastcsv.format({ headers: true, delimiter: '|' });
 mkdirSync(dirname(outpath), { recursive: true });
 const outStream = createWriteStream(outpath);

@@ -21,7 +21,8 @@
 				"publisher": "Berean Standard Bible",
 				"publisherUrl": "https://berean.bible",
 				"license": "Public Domain",
-				"licenseUrl": "https://berean.bible/licensing.htm"
+				"licenseUrl": "https://berean.bible/licensing.htm",
+				"files": [ "dist/en_bsb.csv" ]
 			}
 		}
 	}
