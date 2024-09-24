@@ -24,8 +24,7 @@ The following XLSX columns are purposefully excluded:
 - BDB/Thayers: Greatly increases file size. More complete and deduped versions are available elsewhere.
 
 ## Running
-Download interlinear XLSX tables and per-book USFM using [CURL.](https://curl.se/)
-These files are checked-in, so you need not run this unless you want to download the latest.
+Optionally download the latest interlinear XLSX tables and per-book USFM.
 ```sh
 ./pull.sh
 ```
