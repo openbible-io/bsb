@@ -198,7 +198,7 @@ for await (const row of interlinear) {
 		verse: bcv.verse,
 		original,
 		lang: parseLang(lang),
-		strongs,
+		strongs: `${lang == 'Greek' ? 'G' : 'H'}${strongs}`,
 		order: lang == 'Greek' ? sort_grk : sort_heb,
 		parsing: parsing,
 		transliteration,
