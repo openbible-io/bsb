@@ -14,9 +14,15 @@
 		"usfm-js": "^3.4.3"
 	},
 	"openbible": {
-		"downloadUrl": "https://berean.bible/downloads.htm",
-		"publisher": "Berean Standard Bible",
-		"publisherUrl": "https://berean.bible",
-		"title": "Berean Standard Bible"
+		"bibles": {
+			"en_bsb": {
+				"title": "Berean Standard Bible",
+				"downloadUrl": "https://berean.bible/downloads.htm",
+				"publisher": "Berean Standard Bible",
+				"publisherUrl": "https://berean.bible",
+				"license": "Public Domain",
+				"licenseUrl": "https://berean.bible/licensing.htm"
+			}
+		}
 	}
 }
