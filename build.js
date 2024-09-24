@@ -138,20 +138,20 @@ for await (const row of interlinear) {
 		sort_heb,
 		sort_grk,
 		_sort_bsb,
-		og_lang,
+		lang,
 		_verse_n,
-		og_word,
+		original,
 		__,
-		transliteration_eng,
-		og_parsing,
+		transliteration,
+		parsing,
 		___,
-		og_strong,
+		strongs,
 		verse,
 		heading,
 		_xrefs,
-		text,
+		translation,
 		footnote,
-		_og_lex
+		_lex
 	] = row.values;
 	if (verse) {
 		const match = verse.match(/^(.*) (\d+):(\d+)$/);
@@ -174,7 +174,7 @@ for await (const row of interlinear) {
 	}
 	if (!bcv) continue;
 
-	text = text
+	translation = translation
 		.toString() // numbers should be strings.
 		.replace(/^ *(-|vvv|(\. *){3})/m, '') // empty translation
 		.replace(/(^[\p{P} ]+)/um, (_, b) => b.replaceAll(' ', '')) // start punctuation has added spaces
@@ -182,7 +182,7 @@ for await (const row of interlinear) {
 		.trim(); // rows implicitly have added whitespace.
 
 	const verses = chapters[bcv.chapter.toString()];
-	const textI = text && verses.findIndex(v => v.type == 'text' && v.text.trim().startsWith(text.trim()));
+	const textI = translation && verses.findIndex(v => v.type == 'text' && v.text.trim().startsWith(translation.trim()));
 	const prevObj = verses[textI - 1];
 
 	let before = '';
@@ -196,14 +196,14 @@ for await (const row of interlinear) {
 		book: bcv.book,
 		chapter: bcv.chapter,
 		verse: bcv.verse,
-		og_lang: parseLang(og_lang),
-		og_word,
-		og_strong,
-		og_order: og_lang == 'Greek' ? sort_grk : sort_heb,
-		og_parsing,
-		transliteration_eng,
+		original,
+		lang: parseLang(lang),
+		strongs,
+		order: lang == 'Greek' ? sort_grk : sort_heb,
+		parsing: parsing,
+		transliteration,
+		translation,
 		before,
-		text,
 		heading,
 		footnote,
 	});

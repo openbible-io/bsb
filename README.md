@@ -8,14 +8,14 @@ Source control and normalization for the [Berean Standard Bible](https://bereanb
 - book
 - chapter
 - verse
-- og_lang: original word's language as [iso639-2 code](https://www.loc.gov/standards/iso639-2/php/code_list.php)
-- og_word: original word
-- og_strong: [Strong's concordance number](https://strongsconcordance.org/)
-- og_order: original word's absolute order
-- og_parsing: original word's BSB Hebrew/Aramaic/Greek parsing
-- transliteration_eng: English transliteration of `og_word`
+- original: untranslated word
+- lang: original word's language as [iso639-2 code](https://www.loc.gov/standards/iso639-2/php/code_list.php)
+- strongs: original word's [Strong's concordance number](https://strongsconcordance.org/)
+- order: original word's absolute order per-testament
+- parsing: original word's BSB Hebrew/Aramaic/Greek parsing
+- transliteration
+- translation
 - before: [USFM tag](https://ubsicap.github.io/usfm/index.html) before this text if it's a paragraph, list, or poetry.
-- text: translated text
 - heading: goes before this word
 - footnote: goes after this word
 
