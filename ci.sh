@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
 npm ci
 if [[ "$GITHUB_EVENT_NAME" != "push" ]]; then
 	./pull.sh
