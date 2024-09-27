@@ -27,17 +27,46 @@ async function parseWorkSheet(interlinear: ExcelJS.stream.xlsx.WorksheetReader) 
 	const outStream = createWriteStream(outpath);
 	out.pipe(outStream);
 
-	for await (const row of interlinear) out.write(parseRow(row));
+	let bookName: string = 'gen';
+	let book: ReturnType<typeof parseRow>[] = [];
+	for await (const row of interlinear) {
+		const parsed = parseRow(row);
+		if (!parsed) continue;
+
+		if (parsed.book != bookName) {
+			bookName = parsed.book;
+			flushBook(out, book);
+			book = [];
+		}
+
+		book.push(parsed);
+	}
+
+	flushBook(out, book);
 
 	out.end();
 	console.log('wrote', outpath);
+}
+
+function flushBook(out: any, book: ReturnType<typeof parseRow>[]) {
+	const sorted = book
+		.map(r => r!.order)
+		.sort((a, b) => a - b)
+		.reduce((acc, cur, i) => {
+			acc[cur] = i + 1; // reserve 0 as sentinel
+			return acc;
+		}, [] as number[]);
+
+	book.forEach(row => {
+		row!.order = sorted[row!.order];
+		out.write(row);
+	});
 }
 
 let bcv = {
 	book: '',
 	chapter: 0,
 	verse: 0,
-	startOrder: 0,
 };
 let chapters: ReturnType<typeof parseUsfm> = {};
 
@@ -63,7 +92,6 @@ function parseRow(row: ExcelJS.Row) {
 		footnote,
 		_lex
 	] = row.values as string[];
-	const order = (lang == 'Greek' ? sort_grk : sort_heb);
 
 	if (verse) {
 		const match = verse.match(/^(.*) (\d+):(\d+)$/);
@@ -75,7 +103,6 @@ function parseRow(row: ExcelJS.Row) {
 			book: books.fromEnglish(match[1]),
 			chapter: parseInt(match[2]),
 			verse: parseInt(match[3]),
-			startOrder: parseInt(order),
 		};
 		if (nextBcv.book != bcv.book) {
 			let index = Object.values(books.protestant as unknown as string[]).indexOf(nextBcv.book);
@@ -114,7 +141,7 @@ function parseRow(row: ExcelJS.Row) {
 		original,
 		lang: parseLang(lang),
 		strong: `${lang == 'Greek' ? 'G' : 'H'}${strongs.toString().padStart(4, '0')}`,
-		order: parseInt(order) - bcv.startOrder + 1,
+		order: parseFloat(lang == 'Greek' ? sort_grk : sort_heb),
 		parsing,
 		transliteration,
 		translation,
