@@ -10,8 +10,8 @@ Source control and normalization for the [Berean Standard Bible](https://bereanb
 - verse
 - original: untranslated word
 - lang: original word's language as [iso639-2 code](https://www.loc.gov/standards/iso639-2/php/code_list.php)
-- strongs: original word's [Strong's concordance number](https://strongsconcordance.org/)
-- order: original word's absolute order per-testament
+- strong: original word's [Strong's concordance number](https://strongsconcordance.org/)
+- order: original word's absolute order per-book
 - parsing: original word's BSB Hebrew/Aramaic/Greek parsing
 - transliteration
 - translation
@@ -32,7 +32,7 @@ Optionally download the latest interlinear XLSX tables and per-book USFM.
 Transform downloaded files into a pipe-separated `dist/en_bsb.csv`.
 ```sh
 npm install
-node ./build.js
+npm run build
 ```
 
 ## Continuous Integration
