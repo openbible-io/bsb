@@ -13,8 +13,8 @@ Source control and normalization for the [Berean Standard Bible](https://bereanb
 - strong: original word's [Strong's concordance number](https://strongsconcordance.org/)
 - order: original word's absolute order per-book
 - parsing: original word's BSB Hebrew/Aramaic/Greek parsing
-- transliteration
-- translation
+- en_transliteration
+- en: english translation
 - before: [USFM tag](https://ubsicap.github.io/usfm/index.html) before this text if it's a paragraph, list, or poetry.
 - heading: goes before this word
 - footnote: goes after this word
