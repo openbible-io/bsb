@@ -52,14 +52,14 @@ function parseRow(row: ExcelJS.Row) {
 		_verse_n,
 		original,
 		__,
-		en_transliteration,
+		transliteration,
 		parsing,
 		___,
 		strongs,
 		verse,
 		heading,
 		_xrefs,
-		en,
+		translation,
 		footnote,
 		_lex
 	] = row.values as string[];
@@ -87,7 +87,7 @@ function parseRow(row: ExcelJS.Row) {
 	}
 	if (!bcv) return;
 
-	en = en
+	translation = translation
 		.toString() // numbers should be strings.
 		.replace(/^ *(-|vvv|(\. *){3})/m, '') // empty translation
 		.replace(/(^[\p{P} ]+)/um, (_, b) => b.replaceAll(' ', '')) // start punctuation has added spaces
@@ -95,8 +95,8 @@ function parseRow(row: ExcelJS.Row) {
 		.trim(); // rows implicitly have added whitespace.
 
 	const verses = chapters[bcv.chapter.toString()];
-	const textI = en
-		? verses.findIndex(v => v.type == 'text' && v.text?.trim().startsWith(en.trim()))
+	const textI = translation
+		? verses.findIndex(v => v.type == 'text' && v.text?.trim().startsWith(translation.trim()))
 		: -1;
 	const prevObj = verses[textI - 1];
 
@@ -116,8 +116,8 @@ function parseRow(row: ExcelJS.Row) {
 		strong: `${lang == 'Greek' ? 'G' : 'H'}${strongs.toString().padStart(4, '0')}`,
 		order: parseInt(order) - bcv.startOrder + 1,
 		parsing,
-		en_transliteration,
-		en,
+		transliteration,
+		translation,
 		before,
 		heading,
 		footnote,
