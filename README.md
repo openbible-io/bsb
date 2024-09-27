@@ -29,7 +29,7 @@ Optionally download the latest interlinear XLSX tables and per-book USFM.
 ./pull.sh
 ```
 
-Transform downloaded files into a pipe-separated `dist/en_bsb.csv`.
+Transform downloaded files into  `dist/en_bsb.csv`.
 ```sh
 npm install
 npm run build

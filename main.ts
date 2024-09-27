@@ -22,7 +22,7 @@ async function main(fname: string) {
 
 async function parseWorkSheet(interlinear: ExcelJS.stream.xlsx.WorksheetReader) {
 	const outpath = join(outDir, 'en_bsb.csv');
-	const out = fastcsv.format({ headers: true, delimiter: '|' });
+	const out = fastcsv.format({ headers: true });
 	mkdirSync(dirname(outpath), { recursive: true });
 	const outStream = createWriteStream(outpath);
 	out.pipe(outStream);
@@ -115,7 +115,7 @@ function parseRow(row: ExcelJS.Row) {
 		lang: parseLang(lang),
 		strong: `${lang == 'Greek' ? 'G' : 'H'}${strongs.toString().padStart(4, '0')}`,
 		order: parseInt(order) - bcv.startOrder + 1,
-		parsing: parsing,
+		parsing,
 		transliteration,
 		translation,
 		before,
