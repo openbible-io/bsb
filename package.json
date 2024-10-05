@@ -3,9 +3,12 @@
 	"version": "0.0.0",
 	"description": "Berean Standard Bible data and CSV parser.",
 	"type": "module",
-	"license": "CC0",
+	"license": "CC-PDDC",
 	"repository": {
 		"url": "git+https://github.com/openbible-io/en_bsb.git"
+	},
+	"engines": {
+		"node": ">= 22.7.0"
 	},
 	"scripts": {
 		"build": "node --experimental-strip-types ./main.ts"
@@ -23,10 +26,10 @@
 				"downloadUrl": "https://berean.bible/downloads.htm",
 				"publisher": "Berean Standard Bible",
 				"publisherUrl": "https://berean.bible",
-				"license": "Public Domain",
+				"license": "CC-PDDC",
 				"licenseUrl": "https://berean.bible/licensing.htm",
 				"files": [
-					"dist/en_bsb.csv"
+					"bsb_usfm/*.usfm"
 				]
 			}
 		}
