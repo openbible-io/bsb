@@ -1,27 +1,27 @@
 {
-  "name": "@openbible/en_bsb",
-  "version": "0.0.0",
-  "description": "Berean Standard Bible data and CSV parser.",
-  "type": "module",
-  "license": "CC-PDDC",
-  "repository": {
-    "url": "git+https://github.com/openbible-io/en_bsb.git"
-  },
-  "devDependencies": {},
-  "openbible": {
-    "bibles": {
-      "en_bsb": {
-        "title": "Berean Standard Bible",
-        "downloadUrl": "https://berean.bible/downloads.htm",
-        "publisher": "Berean Standard Bible",
-        "publisherUrl": "https://berean.bible",
-        "license": "CC-PDDC",
-        "licenseUrl": "https://berean.bible/licensing.htm",
-        "files": [
-          "bsb_usfm/*.usfm"
-        ]
-      }
-    },
-    "published": "2024-10-05"
-  }
+	"name": "@openbible/en_bsb",
+	"version": "0.0.0",
+	"description": "Berean Standard Bible data and CSV parser.",
+	"type": "module",
+	"license": "CC-PDDC",
+	"repository": {
+		"url": "git+https://github.com/openbible-io/en_bsb.git"
+	},
+	"devDependencies": {},
+	"openbible": {
+		"bibles": {
+			"en_bsb": {
+				"title": "Berean Standard Bible",
+				"downloadUrl": "https://berean.bible/downloads.htm",
+				"publisher": "Berean Standard Bible",
+				"publisherUrl": "https://berean.bible",
+				"license": "CC-PDDC",
+				"licenseUrl": "https://berean.bible/licensing.htm",
+				"files": [
+					"bsb_usfm/*.usfm",
+					"preface.html"
+				]
+			}
+		}
+	}
 }
