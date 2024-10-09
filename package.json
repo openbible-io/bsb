@@ -7,7 +7,9 @@
 	"repository": {
 		"url": "git+https://github.com/openbible-io/en_bsb.git"
 	},
-	"devDependencies": {},
+	"devDependencies": {
+		"@openbible/core": "^0.0.9"
+	},
 	"openbible": {
 		"bibles": {
 			"en_bsb": {
