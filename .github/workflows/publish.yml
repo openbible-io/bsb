@@ -20,8 +20,6 @@ jobs:
         with:
           registry-url: 'https://registry.npmjs.org'
           node-version: 'latest'
-      - run: npm ci
-      - run: npm run build
       - run: node_modules/@openbible/core/bump-and-publish.sh
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
