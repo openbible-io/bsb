@@ -5,4 +5,4 @@
 Source control and normalization for the [Berean Standard Bible](https://bereanbible.com/).
 
 ## Continuous Integration
-Will download differences daily to master but won't release until reviewed.
+Master updated daily but won't publish until reviewed.

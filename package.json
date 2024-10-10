@@ -15,8 +15,9 @@
 			"en_bsb": {
 				"title": "Berean Standard Bible",
 				"downloadUrl": "https://berean.bible/downloads.htm",
-				"publisher": "Berean Standard Bible",
+				"publisher": "BSB Publishing",
 				"publisherUrl": "https://berean.bible",
+				"publishDate": "2020",
 				"license": "CC-PDDC",
 				"licenseUrl": "https://berean.bible/licensing.htm",
 				"files": [
