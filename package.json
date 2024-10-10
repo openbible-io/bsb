@@ -20,6 +20,56 @@
 				"publishDate": "2020",
 				"license": "CC-PDDC",
 				"licenseUrl": "https://berean.bible/licensing.htm",
+				"authors": {
+					"Gary Hill": {
+						"url": "https://go.discoverybible.com/wp-content/uploads/2021/11/20181104_Bible-Discovery-HELPS-Faculty.pdf",
+						"qualifications": ["PhD from Trinity Evangelical Divinity School"],
+						"contributions": ["Advisor"]
+					},
+					"Grant R. Osborne": {
+						"url": "https://en.wikipedia.org/wiki/Grant_R._Osborne",
+						"qualifications": [
+							"PhD from Aberdeen University",
+							"Professor of New Testament at Trinity Evangelical Divinity School"
+						],
+						"contributions": ["Advisor"]
+					},
+					"Eugene H. Merrill": {
+						"url": "https://en.wikipedia.org/wiki/Eugene_H._Merrill_(academic)",
+						"qualifications": [
+							"PhD from Bob Jones University",
+							"PhD from Columbia University"
+						],
+						"contributions": ["Advisor"]
+					},
+					"Maury Robertson": {
+						"url": "http://gsapps.org/faculty/bio.aspx?p=MauryRobertson",
+						"qualifications": [
+							"PhD from Golden Gate Baptist Theological Seminary",
+							"M.Div. from Golden Gate Baptist Theological Seminary"
+						],
+						"contributions": ["Advisor"]
+					},
+					"Ulrik Sandborg-Petersen": {
+						"url": "https://github.com/emg",
+						"contributions": ["Advisor"]
+					},
+					"Baruch Korman": {
+						"url": "https://loveisrael.org/about/",
+						"qualifications": [
+							"PhD",
+							"Senior lecturer at the Zera Abraham Institute"
+						],
+						"contributions": ["Advisor"]
+					},
+					"Gleason Archer": {
+						"url": "https://en.wikipedia.org/wiki/Gleason_Archer_Jr.",
+						"qualifications": [
+							"Professor at Trinity Evangelical Divinity School"
+						],
+						"contributions": ["Extended translation notes"]
+					}
+				},
 				"files": [
 					"bsb_usfm/*.usfm",
 					"preface.html"
