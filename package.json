@@ -1,5 +1,5 @@
 {
-	"name": "@openbible/en_bsb",
+	"name": "@openbible/bsb",
 	"version": "0.0.0",
 	"description": "Berean Standard Bible data and CSV parser.",
 	"type": "module",
@@ -12,7 +12,7 @@
 	},
 	"openbible": {
 		"bibles": {
-			"en_bsb": {
+			"eng_bsb": {
 				"title": "Berean Standard Bible",
 				"downloadUrl": "https://berean.bible/downloads.htm",
 				"publisher": "BSB Publishing",
