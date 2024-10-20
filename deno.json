@@ -1,15 +1,7 @@
 {
 	"name": "@openbible/bsb",
 	"version": "0.0.0",
-	"description": "Berean Standard Bible data and CSV parser.",
-	"type": "module",
-	"license": "CC-PDDC",
-	"repository": {
-		"url": "git+https://github.com/openbible-io/bsb.git"
-	},
-	"devDependencies": {
-		"@openbible/core": "^0.0.9"
-	},
+	"exports": "./deno.json",
 	"openbible": {
 		"bibles": {
 			"eng_bsb": {
@@ -77,5 +69,10 @@
 				]
 			}
 		}
+	},
+	"publish": {
+		"exclude": [
+			"./bsb_tables.xlsx"
+		]
 	}
 }
