@@ -1,6 +1,7 @@
 {
 	"name": "@openbible/bsb",
 	"version": "0.0.0",
+	"exports": "./deno.json",
 	"openbible": {
 		"bibles": {
 			"eng_bsb": {
