@@ -160,6 +160,7 @@ mkdirSync('dist', { recursive: true });
 writeFileSync(
 	'dist/index.ts',
 	`import type { Publication } from '@openbible/core';
+/** Berean Standard Bible */
 export default ${JSON.stringify(publication, null, 2)} as Publication;
 `,
 );
