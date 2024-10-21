@@ -2,19 +2,19 @@
   "version": "3",
   "packages": {
     "specifiers": {
-      "jsr:@openbible/bconv@^0.1.6": "jsr:@openbible/bconv@0.1.6",
-      "jsr:@openbible/core@^0.1.10": "jsr:@openbible/core@0.1.10",
+      "jsr:@openbible/bconv@^0.1.7": "jsr:@openbible/bconv@0.1.7",
+      "jsr:@openbible/core@^0.1.14": "jsr:@openbible/core@0.1.14",
       "npm:chalk@^5.3.0": "npm:chalk@5.3.0"
     },
     "jsr": {
-      "@openbible/bconv@0.1.6": {
-        "integrity": "0534ab4744489c83175ea3f3e934b2cbf90932fee2a1cabd14b6305bd3ba7b55",
+      "@openbible/bconv@0.1.7": {
+        "integrity": "5db3a38ee6af8e4ff05008ec576d5c6e0273f2969ff0bf320f55159331fd3c53",
         "dependencies": [
           "npm:chalk@^5.3.0"
         ]
       },
-      "@openbible/core@0.1.10": {
-        "integrity": "fe067b2a0a09d9e56740a9931320fd610ede5ffe7f5d1a7b8c9b1dff0c646a05"
+      "@openbible/core@0.1.14": {
+        "integrity": "cb44c84dead102e2b671015adc520545d46c2aee45ae054bd0b0c15dbe722ca3"
       }
     },
     "npm": {
@@ -27,8 +27,8 @@
   "remote": {},
   "workspace": {
     "dependencies": [
-      "jsr:@openbible/bconv@^0.1.6",
-      "jsr:@openbible/core@^0.1.10"
+      "jsr:@openbible/bconv@^0.1.7",
+      "jsr:@openbible/core@^0.1.14"
     ]
   }
 }

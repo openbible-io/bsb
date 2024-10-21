@@ -11,8 +11,8 @@
 		]
 	},
 	"imports": {
-		"@openbible/bconv": "jsr:@openbible/bconv@^0.1.6",
-		"@openbible/core": "jsr:@openbible/core@^0.1.10"
+		"@openbible/bconv": "jsr:@openbible/bconv@^0.1.7",
+		"@openbible/core": "jsr:@openbible/core@^0.1.14"
 	},
 	"fmt": {
 		"useTabs": true,
