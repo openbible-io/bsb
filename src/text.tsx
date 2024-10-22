@@ -119,3 +119,8 @@ Deno.writeTextFileSync(
 	JSON.stringify(publication),
 	{ create: true },
 );
+
+const notFoundPage = preactRender(<Page title='Not found'>404</Page>);
+Deno.writeTextFileSync(path.join('dist', '404.html'), notFoundPage, {
+	create: true,
+});
