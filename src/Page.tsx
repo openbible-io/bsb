@@ -2,14 +2,14 @@ import type { ComponentChildren } from 'preact';
 import pub from './publication.ts';
 
 export default function Page(
-	props: { title?: string; children: ComponentChildren },
+	props: { title: string; children: ComponentChildren },
 ) {
 	return (
 		<html lang='en'>
 			<head>
 				<meta charset='utf-8' />
 				<meta name='viewport' content='width=device-width, initial-scale=1.0' />
-				<title>BSB {props.title ? `- ${props.title}` : ''}</title>
+				<title>BSB - {props.title}</title>
 				<link rel='icon' href='/favicon.png' />
 				<link rel='stylesheet' href='/index.css' />
 			</head>

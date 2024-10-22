@@ -45,7 +45,12 @@ async function download(mirror: keyof typeof mirrors, version: Version) {
 			const url = mirror +
 				mirrors[mirror](version as 'souer', book as books.Book, chapter);
 			const fname = `dist/${book}/${padStart(chapter, 3)}_${version}.mp3`;
-			console.log(url, '->', fname);
+			try {
+				Deno.lstatSync(fname);
+				continue;
+			} catch {
+				console.log(url, '->', fname);
+			}
 
 			const resp = await fetch(url);
 			if (!resp.ok) throw Error(`${resp.status} downloading ${url}`);
@@ -62,5 +67,6 @@ async function download(mirror: keyof typeof mirrors, version: Version) {
 }
 
 await download('https://openbible.com', 'souer');
-await download('https://openbible.com', 'gilbert');
-await download('https://openbible.com', 'hays');
+//await download('https://openbible.com', 'gilbert');
+//await download('https://openbible.com', 'hays');
+console.log('downloaded audio');

@@ -72,7 +72,7 @@ for (const f of Deno.readDirSync('bsb_usfm')) {
 				(s) =>
 					s.replace(
 						'</h2>',
-						`<audio controls src="${chapFmt}_souer.mp3"></h2>`,
+						`</h2><audio controls src="${chapFmt}_souer.mp3">`,
 					),
 			);
 			chapter = [title];
@@ -107,7 +107,7 @@ for (const f of Deno.readDirSync('bsb_usfm')) {
 }
 
 const indexPage = preactRender(
-	<Page>
+	<Page title="Preface">
 		<Publication />
 	</Page>,
 );
@@ -120,7 +120,8 @@ Deno.writeTextFileSync(
 	{ create: true },
 );
 
-const notFoundPage = preactRender(<Page title='Not found'>404</Page>);
+const notFoundPage = preactRender(<Page title="Not found">404</Page>);
 Deno.writeTextFileSync(path.join('dist', '404.html'), notFoundPage, {
 	create: true,
 });
+console.log('generated html, css, and json');

@@ -16,5 +16,8 @@
 	"compilerOptions": {
 		"jsx": "precompile",
 		"jsxImportSource": "preact"
+	},
+	"tasks": {
+		"build": "deno -A ./src/text.tsx && deno -A ./src/audio.ts"
 	}
 }
