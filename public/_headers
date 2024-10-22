@@ -1,8 +1,7 @@
 /*
 	Access-Control-Allow-Origin: *
 	Content-Security-Policy: script-src 'none';
-	! Nel
 	Referrer-Policy: no-referrer
-	! Report-To
-	! Server-Timing
-	! Speculation-Rules
+	Report-To: nobody
+	Nel: none
+	Speculation-Rules: none

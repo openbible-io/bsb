@@ -17,11 +17,11 @@ export default function Page(
 				<nav>
 					<ul>
 						<li>
-							<a href='/index.html'>Preface</a>
+							<a href="/">Preface</a>
 						</li>
 						{Object.entries(pub.toc).map(([id, { name }]) => (
 							<li>
-								<a href={`/${id}/index.html`}>{name}</a>
+								<a href={`/${id}/index`}>{name}</a>
 							</li>
 						))}
 					</ul>

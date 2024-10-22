@@ -91,11 +91,11 @@ for (const f of Deno.readDirSync('bsb_usfm')) {
 				<ul>
 					{[...Array(chapterN).keys()].map((i) => i + 1).map((c) => (
 						<li>
-							<a href={`${c.toString().padStart(3, '0')}.html`}>{c}</a>
+							<a href={c.toString().padStart(3, '0')}>{c}</a>
 						</li>
 					))}
 					<li>
-						<a href='all.html'>All</a>
+						<a href="all">All</a>
 					</li>
 				</ul>
 			</nav>
