@@ -19,7 +19,7 @@ for v in souer gilbert hays; do
 		# m = move into zipfile
 		# s 1950m = split into 1950M since Github has a 2GB file limit
 		zip -0rms 1950m $v.zip *
-		ls
+		ls -lah
 		TAG=$(echo ${LAST_TAG:="audio-$v-v0.0.0"} | awk -F. -v OFS=. '{$NF += 1 ; print}')
 		gh release create --latest=false --title "$v audio" $TAG *
 		rm -rf *
