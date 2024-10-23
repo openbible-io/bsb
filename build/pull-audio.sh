@@ -13,7 +13,7 @@ for v in souer; do
 	LAST_RELEASE_DATE=$(echo $LAST_RELEASE | jq -r ".createdAt" | cut -c-10)
 
 	set -e
-	if deno task audio --since "$LAST_DOWNLOAD" $v; then
+	if deno task audio --since "$LAST_RELEASE_DATE" $v; then
 		# 0 = no compression (mp3 is already compressed, at most 1-2% gains from DEFLATE)
 		# r = recursive
 		# m = move into zipfile
