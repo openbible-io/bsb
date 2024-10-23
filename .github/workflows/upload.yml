@@ -9,21 +9,18 @@ jobs:
       - uses: actions/checkout@v4
       - uses: denoland/setup-deno@v2
       - run: deno task site
-      - uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_PAGES_UPLOAD }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist
       - name: download release audio
         run: |
-            LAST_RELEASE=$(gh release ls --json tagName -q "map(select(.tagName | test(\"^audio-souer-.*\"))) | .[0] | .tagName")
-            gh release download $LAST_RELEASE
-            7z x *.zip -odist
-            rm *.z*
+            npx wrangler pages deploy dist
+            rm -rf dist
+            for v in souer gilbert hays; do
+              LAST_RELEASE=$(gh release ls --json tagName -q "map(select(.tagName | test(\"^audio-$v-.*\"))) | .[0] | .tagName")
+              gh release download $LAST_RELEASE
+              7z x *.zip -odist
+              npx wrangler pages deploy dist
+              rm -rf *.z* dist
+            done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_PAGES_UPLOAD }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_UPLOAD }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

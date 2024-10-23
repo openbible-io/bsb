@@ -73,7 +73,11 @@ for (const f of Deno.readDirSync(usfmDir)) {
 				(s) =>
 					s.replace(
 						'</h2>',
-						`</h2><audio controls src="${chapFmt}_souer.mp3"></audio>`,
+						`</h2>
+						<audio controls src="${chapFmt}_souer.mp3"></audio>
+						<audio controls src="${chapFmt}_gilbert.mp3"></audio>
+						<audio controls src="${chapFmt}_hays.mp3"></audio>
+						`,
 					),
 			);
 			chapter = [title];
