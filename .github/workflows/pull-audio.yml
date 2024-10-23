@@ -10,8 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: denoland/setup-deno@v2
-      - name: Setup p7zip fork
-        uses: AnimMouse/setup-p7zip-fork@v1
+      - uses: openbible-io/setup-7z-fork@v0.0.1
         with:
           version: v17.04 # Need consistent version to diff output archives.
       - run: deno task audio souer
