@@ -7,7 +7,7 @@ mkdir -p dist
 cd dist
 
 # Public Github runners have a disk limit of 14GB.
-for v in souer; do
+for v in souer gilbert hays; do
 	LAST_RELEASE=$(gh release ls --json tagName,createdAt -q "map(select(.tagName | test(\"^audio-$v-.*\"))) | .[]")
 	LAST_TAG=$(echo $LAST_RELEASE | jq -r ".tagName")
 	LAST_RELEASE_DATE=$(echo $LAST_RELEASE | jq -r ".createdAt" | cut -c-10)
