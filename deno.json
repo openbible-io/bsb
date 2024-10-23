@@ -2,6 +2,7 @@
 	"imports": {
 		"@openbible/bconv": "jsr:@openbible/bconv",
 		"@openbible/core": "jsr:@openbible/core@^0.1.17",
+		"@std/cli": "jsr:@std/cli@^1.0.6",
 		"@std/fs": "jsr:@std/fs@^1.0.4",
 		"@std/io": "jsr:@std/io@^0.225.0",
 		"@std/path": "jsr:@std/path@^1.0.6",

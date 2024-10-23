@@ -5,6 +5,8 @@
       "jsr:@openbible/bconv": "jsr:@openbible/bconv@0.1.7",
       "jsr:@openbible/core@^0.1.17": "jsr:@openbible/core@0.1.17",
       "jsr:@std/bytes@^1.0.2": "jsr:@std/bytes@1.0.2",
+      "jsr:@std/cli": "jsr:@std/cli@1.0.6",
+      "jsr:@std/cli@^1.0.6": "jsr:@std/cli@1.0.6",
       "jsr:@std/fs@^1.0.4": "jsr:@std/fs@1.0.4",
       "jsr:@std/io@^0.225.0": "jsr:@std/io@0.225.0",
       "jsr:@std/path@^1.0.6": "jsr:@std/path@1.0.6",
@@ -25,6 +27,9 @@
       },
       "@std/bytes@1.0.2": {
         "integrity": "fbdee322bbd8c599a6af186a1603b3355e59a5fb1baa139f8f4c3c9a1b3e3d57"
+      },
+      "@std/cli@1.0.6": {
+        "integrity": "d22d8b38c66c666d7ad1f2a66c5b122da1704f985d3c47f01129f05abb6c5d3d"
       },
       "@std/fs@1.0.4": {
         "integrity": "2907d32d8d1d9e540588fd5fe0ec21ee638134bd51df327ad4e443aaef07123c",
@@ -68,6 +73,7 @@
     "dependencies": [
       "jsr:@openbible/bconv",
       "jsr:@openbible/core@^0.1.17",
+      "jsr:@std/cli@^1.0.6",
       "jsr:@std/fs@^1.0.4",
       "jsr:@std/io@^0.225.0",
       "jsr:@std/path@^1.0.6",

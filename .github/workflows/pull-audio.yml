@@ -1,5 +1,8 @@
 name: Pull audio
 on:
+on:
+  schedule:
+    - cron: '0 0 * * *'
   workflow_dispatch:
 permissions:
   contents: write
@@ -10,11 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: denoland/setup-deno@v2
-      - run: deno task audio souer
-      - name: Zip and release
+      - run: ./build/pull-audio.sh
+      - name: Maybe release
         run: |
-          cd dist
-          zip -0rms 950m souer.zip *
-          gh release create -t audio audio-$(date '+%Y-%m-%d') *
+          if [ -d dist ]; then
+            gh release create -t Audio audio-$(date '+%Y-%m-%d') *
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
