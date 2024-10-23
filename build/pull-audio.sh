@@ -1,6 +1,7 @@
 #!/bin/env bash
 # Releases audio if apache web server has files dated after latest
 # `audio-YYYY-mm-dd` Github release tag.
+set -e
 
 LAST_DOWNLOAD=$(gh release view --json 'tagName' -q '.tagName' | cut -c7-)
 for v in souer gilbert hays; do
