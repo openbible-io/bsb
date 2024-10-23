@@ -18,6 +18,7 @@
 		"jsxImportSource": "preact"
 	},
 	"tasks": {
-		"build": "deno -A ./src/text.tsx && deno -A ./src/audio.ts"
+		"audio": "deno -A ./build/audio.ts",
+		"site": "deno -A ./src/text.tsx "
 	}
 }

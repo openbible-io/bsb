@@ -61,8 +61,10 @@ async function download(mirror: keyof typeof mirrors, version: Version) {
 	}
 }
 
-const version = Deno.args[0];
-if (!(version in audio)) throw Error(`Expected "${version ?? ''}" to be in ${Object.keys(audio).join(', ')}`);
-
-await download('https://openbible.com', version as Version);
+for (const version of Deno.args) {
+	if (!(version in audio)) {
+		throw Error(`Expected "${version ?? ''}" to be in ${Object.keys(audio).join(', ')}`);
+	}
+	await download('https://openbible.com', version as Version);
+}
 console.log('downloaded audio');
