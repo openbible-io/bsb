@@ -10,7 +10,7 @@ import { walk } from '@std/fs/walk';
 import { render as preactRender } from 'preact-render-to-string';
 import Page from './Page.tsx';
 import Publication from './Publication.tsx';
-import publication from './publication.ts';
+import publication from '../bsb/index.ts';
 
 for await (const dirEntry of walk('public')) {
 	const newPath = dirEntry.path.replace('public', 'dist');
@@ -38,10 +38,11 @@ function writeAst(
 	writeHtml(fname, title, html);
 }
 
-for (const f of Deno.readDirSync('bsb_usfm')) {
+const usfmDir = 'bsb/bsb_usfm';
+for (const f of Deno.readDirSync(usfmDir)) {
 	if (f.isDirectory) continue;
 
-	const text = Deno.readTextFileSync(path.join('bsb_usfm', f.name));
+	const text = Deno.readTextFileSync(path.join(usfmDir, f.name));
 	const ast = canonicalize(usfm.parseAndPrintErrors(text));
 
 	const title = ast.find((n) => 'tag' in n && n.tag == 'h1') as TextNode;
@@ -95,7 +96,7 @@ for (const f of Deno.readDirSync('bsb_usfm')) {
 						</li>
 					))}
 					<li>
-						<a href="all">All</a>
+						<a href='all'>All</a>
 					</li>
 				</ul>
 			</nav>
@@ -107,7 +108,7 @@ for (const f of Deno.readDirSync('bsb_usfm')) {
 }
 
 const indexPage = preactRender(
-	<Page title="Preface">
+	<Page title='Preface'>
 		<Publication />
 	</Page>,
 );
@@ -120,7 +121,7 @@ Deno.writeTextFileSync(
 	{ create: true },
 );
 
-const notFoundPage = preactRender(<Page title="Not found">404</Page>);
+const notFoundPage = preactRender(<Page title='Not found'>404</Page>);
 Deno.writeTextFileSync(path.join('dist', '404.html'), notFoundPage, {
 	create: true,
 });

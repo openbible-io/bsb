@@ -1,4 +1,4 @@
-import pub from './publication.ts';
+import pub from '../bsb/index.ts';
 
 export default function Publication() {
 	return (

@@ -1,5 +1,5 @@
 import type { ComponentChildren } from 'preact';
-import pub from './publication.ts';
+import pub from '../bsb/index.ts';
 
 export default function Page(
 	props: { title: string; children: ComponentChildren },
@@ -17,7 +17,7 @@ export default function Page(
 				<nav>
 					<ul>
 						<li>
-							<a href="/">Preface</a>
+							<a href='/'>Preface</a>
 						</li>
 						{Object.entries(pub.toc).map(([id, { name }]) => (
 							<li>

@@ -2,7 +2,7 @@ import type { books } from '@openbible/core';
 import { copy, readerFromStreamReader } from '@std/io';
 import { dirname } from 'node:path';
 import pub, { audio } from '../bsb/index.ts';
-import { parseArgs } from "jsr:@std/cli/parse-args";
+import { parseArgs } from 'jsr:@std/cli/parse-args';
 
 type Version = keyof typeof audio;
 const outdir = 'dist';
@@ -21,11 +21,15 @@ function titleCase(s: string) {
 }
 
 const mirrors = {
-	'https://openbible.com': (v: Version, book?: books.Book, chapter?: number) => {
+	'https://openbible.com': (
+		v: Version,
+		book?: books.Book,
+		chapter?: number,
+	) => {
 		let res = `/audio/${v}`;
 		if (!book) return res;
 
-		res += '/BSB_'
+		res += '/BSB_';
 		const i = Object.keys(pub.toc).indexOf(book);
 		if (book == 'tit') book = 'tts' as 'tit';
 		if (!chapter) return res;
@@ -48,7 +52,11 @@ const mirrors = {
 	},
 } as const;
 
-async function download(mirror: keyof typeof mirrors, version: Version, since?: string) {
+async function download(
+	mirror: keyof typeof mirrors,
+	version: Version,
+	since?: string,
+) {
 	// if there's a since new version, will redownload ALL
 	const url = mirror + mirrors[mirror](version);
 	const resp = await fetch(url);
@@ -88,7 +96,7 @@ async function download(mirror: keyof typeof mirrors, version: Version, since?: 
 }
 
 const flags = parseArgs(Deno.args, {
-	string: ["mirror", "since"],
+	string: ['mirror', 'since'],
 	default: {
 		mirror: 'https://openbible.com',
 	},
@@ -103,13 +111,23 @@ console.log('downloading', versions, 'since', flags.since);
 
 for (const version of versions) {
 	if (!(version in audio)) {
-		throw Error(`Expected "${version ?? ''}" to be in ${Object.keys(audio).join(', ')}`);
+		throw Error(
+			`Expected "${version ?? ''}" to be in ${Object.keys(audio).join(', ')}`,
+		);
 	}
 	if (!(flags.mirror in mirrors)) {
-		throw Error(`Expected "${flags.mirror ?? ''}" to be in ${Object.keys(mirrors).join(', ')}`);
+		throw Error(
+			`Expected "${flags.mirror ?? ''}" to be in ${
+				Object.keys(mirrors).join(', ')
+			}`,
+		);
 	}
 
-	await download(flags.mirror as keyof typeof mirrors, version as Version, flags.since);
+	await download(
+		flags.mirror as keyof typeof mirrors,
+		version as Version,
+		flags.since,
+	);
 }
 console.log('downloaded audio');
 Deno.exit(exitCode);
