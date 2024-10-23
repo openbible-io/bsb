@@ -4,7 +4,7 @@
 
 LAST_DOWNLOAD=$(gh release view --json 'tagName' -q '.tagName' | cut -c7-)
 for v in souer gilbert hays; do
-	deno task audio --since $LAST_DOWNLOAD $v
+	deno task audio $v --since "$LAST_DOWNLOAD"
 	if [ -d dist ]; then
 		pushd dist
 		# Github has a 2GB file limit

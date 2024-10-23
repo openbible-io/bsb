@@ -93,7 +93,9 @@ const flags = parseArgs(Deno.args, {
 	collect: ["versions"],
 });
 
-if (flags.since && !flags.since.match(dateRe)) throw Error(`Expected date format ${dateRe}`);
+if (flags.since && !flags.since.match(dateRe)) {
+	throw Error(`Expected ${flags.since} to match date format ${dateRe}`);
+}
 
 for (const version of flags.versions) {
 	if (!(version in audio)) {
