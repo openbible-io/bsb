@@ -9,8 +9,8 @@ cd dist
 # Public Github runners have a disk limit of 14GB.
 for v in souer; do
 	LAST_RELEASE=$(gh release ls --json tagName,createdAt -q "map(select(.tagName | test(\"^audio-$v-.*\"))) | .[]")
-	LAST_TAG=$(echo $LAST_RELEASE | jq ".tagName")
-	LAST_RELEASE_DATE=$(echo $LAST_RELEASE | jq ".createdAt" | cut -d-10)
+	LAST_TAG=$(echo $LAST_RELEASE | jq -r ".tagName")
+	LAST_RELEASE_DATE=$(echo $LAST_RELEASE | jq -r ".createdAt" | cut -c-10)
 
 	set -e
 	if deno task audio --since "$LAST_DOWNLOAD" $v; then
@@ -21,7 +21,7 @@ for v in souer; do
 		zip -0rms 1950m $v.zip *
 		ls
 		TAG=$(echo ${LAST_TAG:="audio-$v-v0.0.0"} | awk -F. -v OFS=. '{$NF += 1 ; print}')
-		gh release create --latest=false --title "$v Audio" $TAG *
+		gh release create --latest=false --title "$v audio" $TAG *
 		rm -rf *
 	else
 		echo 'no changes'
