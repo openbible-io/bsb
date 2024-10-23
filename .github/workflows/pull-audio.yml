@@ -15,10 +15,3 @@ jobs:
       - run: ./build/pull-audio.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Maybe release
-        run: |
-          if [ -d dist ]; then
-            gh release create -t Audio audio-$(date '+%Y-%m-%d') *
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

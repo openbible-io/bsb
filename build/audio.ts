@@ -7,6 +7,7 @@ import { parseArgs } from "jsr:@std/cli/parse-args";
 type Version = keyof typeof audio;
 const outdir = 'dist';
 const dateRe = /\d{4}-\d{2}-\d{2}/g;
+let exitCode = 1;
 
 function padStart(n: number, width: number) {
 	return n.toString().padStart(width, '0');
@@ -49,18 +50,17 @@ const mirrors = {
 
 async function download(mirror: keyof typeof mirrors, version: Version, since?: string) {
 	// if there's a since new version, will redownload ALL
-	if (since) {
-		const url = mirror + mirrors[mirror](version);
-		const resp = await fetch(url);
-		if (!resp.ok) throw Error(`${resp.status} downloading ${url}`);
-		const text = await resp.text();
-		let lastUpdated = '1990-01-01';
-		for (const m of text.matchAll(dateRe)) {
-			if (m[0] > lastUpdated) lastUpdated = m[0];
-		}
-		console.log(url, 'last updated', lastUpdated);
-		if (lastUpdated < since) return;
+	const url = mirror + mirrors[mirror](version);
+	const resp = await fetch(url);
+	if (!resp.ok) throw Error(`${resp.status} downloading ${url}`);
+	const text = await resp.text();
+	let lastUpdated = '1990-01-01';
+	for (const m of text.matchAll(dateRe)) {
+		if (m[0] > lastUpdated) lastUpdated = m[0];
 	}
+	console.log(url, 'last updated', lastUpdated);
+	if (since && lastUpdated < since) return;
+
 	for (const e of Object.entries(pub.toc)) {
 		const [book, { nChapters }] = e;
 		for (let i = 0; i < nChapters; i++) {
@@ -79,7 +79,10 @@ async function download(mirror: keyof typeof mirrors, version: Version, since?: 
 			await Deno.mkdir(dirname(fname), { recursive: true });
 			const f = await Deno.open(fname, { create: true, write: true });
 			await copy(r, f);
+			const mtime = new Date(lastUpdated);
+			Deno.utimeSync(fname, mtime, mtime);
 			f.close();
+			exitCode = 0;
 		}
 	}
 }
@@ -96,7 +99,6 @@ if (flags.since && !flags.since.match(dateRe)) {
 }
 
 const versions = flags._.filter(Boolean);
-if (versions.length == 0) versions.push('souer', 'hays', 'gilbert');
 console.log('downloading', versions, 'since', flags.since);
 
 for (const version of versions) {
@@ -110,3 +112,4 @@ for (const version of versions) {
 	await download(flags.mirror as keyof typeof mirrors, version as Version, flags.since);
 }
 console.log('downloaded audio');
+Deno.exit(exitCode);
