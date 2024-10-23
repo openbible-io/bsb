@@ -11,7 +11,7 @@ jobs:
       - run: deno task site
       - name: download release audio
         run: |
-            LAST_RELEASE=$(gh release ls --json tagName -q "map(select(.tagName | test(\"^audio-souer-.*\"))) | .[] | .tagName")
+            LAST_RELEASE=$(gh release ls --json tagName -q "map(select(.tagName | test(\"^audio-souer-.*\"))) | .[0] | .tagName")
             gh release download $LAST_RELEASE
             7z x *.zip -odist
             rm *.z*
