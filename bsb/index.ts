@@ -1,4 +1,5 @@
 import type { Audio, Author, Publication, Toc } from '@openbible/core';
+import { join } from 'node:path';
 
 const authors: Author[] = [
 	{
@@ -377,7 +378,7 @@ export default {
 	license: 'CC-PDDC',
 	licenseUrl: 'https://berean.bible/licensing.htm',
 	authors,
-	preface: Deno.readTextFileSync('./preface.html'),
+	preface: Deno.readTextFileSync(join(import.meta.dirname!, 'preface.html')),
 	toc,
 	audio,
 } as Publication;

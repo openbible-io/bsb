@@ -1,10 +1,10 @@
 import type { books } from '@openbible/core';
 import { copy, readerFromStreamReader } from '@std/io';
 import { dirname } from 'node:path';
-import pub from './publication.ts';
-import { audio } from './publication.ts';
+import pub, { audio } from '../bsb/index.ts';
 
 type Version = keyof typeof audio;
+const outdir = 'dist';
 
 function padStart(n: number, width: number) {
 	return n.toString().padStart(width, '0');
@@ -44,13 +44,8 @@ async function download(mirror: keyof typeof mirrors, version: Version) {
 			const chapter = i + 1;
 			const url = mirror +
 				mirrors[mirror](version as 'souer', book as books.Book, chapter);
-			const fname = `dist/${book}/${padStart(chapter, 3)}_${version}.mp3`;
-			try {
-				Deno.lstatSync(fname);
-				continue;
-			} catch {
-				console.log(url, '->', fname);
-			}
+			const fname = `${outdir}/${book}/${padStart(chapter, 3)}_${version}.mp3`;
+			console.log(url, '->', fname);
 
 			const resp = await fetch(url);
 			if (!resp.ok) throw Error(`${resp.status} downloading ${url}`);
@@ -66,7 +61,8 @@ async function download(mirror: keyof typeof mirrors, version: Version) {
 	}
 }
 
-await download('https://openbible.com', 'souer');
-//await download('https://openbible.com', 'gilbert');
-//await download('https://openbible.com', 'hays');
+const version = Deno.args[0];
+if (!(version in audio)) throw Error(`Expected "${version ?? ''}" to be in ${Object.keys(audio).join(', ')}`);
+
+await download('https://openbible.com', version as Version);
 console.log('downloaded audio');

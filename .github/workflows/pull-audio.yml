@@ -1,0 +1,18 @@
+name: Pull audio
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+
+jobs:
+  pull-audio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+      - run: ./build/pull-audio.sh
+      - run: |
+          cd dist
+          gh release create -t audio audio-$(date '+%Y-%m-%d') *
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

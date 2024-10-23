@@ -1,4 +1,4 @@
-name: Download BSB sources
+name: Pull text
 on:
   schedule:
     - cron: '0 0 * * *'
@@ -8,14 +8,11 @@ permissions:
   pull-requests: write
 
 jobs:
-  download:
+  pull-text:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          registry-url: 'https://registry.npmjs.org'
-      - run: ./pull.sh
+      - run: ./build/pull-text.sh
       - run: |
           git status -s
           if [[ -n "$(git status -s)" ]]; then
@@ -27,7 +24,7 @@ jobs:
             git config user.email ci@openbible.io
             git commit -m  "$COMMIT"
             git push origin $BRANCH
-            gh pr create -B master -H $BRANCH --title "$COMMIT" --body "Created by download.yml"
+            gh pr create -B master -H $BRANCH --title "$COMMIT" --body "Created by pull-text.yml"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
