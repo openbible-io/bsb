@@ -87,8 +87,7 @@ async function download(mirror: keyof typeof mirrors, version: Version, since?: 
 const flags = parseArgs(Deno.args, {
 	string: ["mirror", "since"],
 	default: {
-		'mirror': 'https://openbible.com',
-		'since': new Date().toISOString().substring(0, 10),
+		mirror: 'https://openbible.com',
 	},
 });
 
@@ -96,7 +95,7 @@ if (flags.since && !flags.since.match(dateRe)) {
 	throw Error(`Expected ${flags.since} to match date format ${dateRe}`);
 }
 
-const versions = flags._;
+const versions = flags._.filter(Boolean);
 if (versions.length == 0) versions.push('souer', 'hays', 'gilbert');
 console.log('downloading', versions, 'since', flags.since);
 
