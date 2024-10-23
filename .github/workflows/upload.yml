@@ -10,8 +10,9 @@ jobs:
       - uses: denoland/setup-deno@v2
       - name: download release audio
         run: |
-            for v in souer gilbert hays; do
+            for v in souer hays; do
               LAST_RELEASE=$(gh release ls --json tagName -q "map(select(.tagName | test(\"^audio-$v-.*\"))) | .[0] | .tagName")
+              cd /tmp
               gh release download $LAST_RELEASE
               7z x *.zip -odist
               rm *.zip
