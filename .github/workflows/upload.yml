@@ -16,9 +16,10 @@ jobs:
               7z x *.zip -odist
               rm *.zip
             done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: deno task site
       - run: npx wrangler pages deploy dist
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_UPLOAD }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
