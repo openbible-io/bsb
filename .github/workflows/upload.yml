@@ -14,7 +14,7 @@ jobs:
             LAST_RELEASE=$(gh release ls --json tagName -q "map(select(.tagName | test(\"^audio-souer-.*\"))) | .[] | .tagName")
             gh release download $LAST_RELEASE
             7z x *.zip -odist
-            rm *.z
+            rm *.z*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: cloudflare/wrangler-action@v3
