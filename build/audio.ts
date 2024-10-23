@@ -85,19 +85,22 @@ async function download(mirror: keyof typeof mirrors, version: Version, since?: 
 }
 
 const flags = parseArgs(Deno.args, {
-	string: ["since", "versions", "mirror"],
+	string: ["mirror", "since"],
 	default: {
 		'mirror': 'https://openbible.com',
-		'versions': ['souer', 'hays', 'gilbert'],
+		'since': new Date().toISOString().substring(0, 10),
 	},
-	collect: ["versions"],
 });
 
 if (flags.since && !flags.since.match(dateRe)) {
 	throw Error(`Expected ${flags.since} to match date format ${dateRe}`);
 }
 
-for (const version of flags.versions) {
+const versions = flags._;
+if (versions.length == 0) versions.push('souer', 'hays', 'gilbert');
+console.log('downloading', versions, 'since', flags.since);
+
+for (const version of versions) {
 	if (!(version in audio)) {
 		throw Error(`Expected "${version ?? ''}" to be in ${Object.keys(audio).join(', ')}`);
 	}
