@@ -8,18 +8,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: denoland/setup-deno@v2
-      - run: deno task site
       - name: download release audio
         run: |
-            npx wrangler pages deploy dist
-            rm -rf dist
-            for v in souer gilbert hays; do
+            for v in souer hays; do
               LAST_RELEASE=$(gh release ls --json tagName -q "map(select(.tagName | test(\"^audio-$v-.*\"))) | .[0] | .tagName")
               gh release download $LAST_RELEASE
               7z x *.zip -odist
-              npx wrangler pages deploy dist
-              rm -rf *.z* dist
+              rm *.zip
             done
+      - run: deno task site
+      - run: npx wrangler pages deploy dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_UPLOAD }}
