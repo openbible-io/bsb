@@ -3,7 +3,7 @@
 # `audio-YYYY-mm-dd` Github release tag.
 
 LAST_DOWNLOAD=$(gh release view --json 'tagName' -q '.tagName' | cut -c7-)
-for $v in souer gilbert hays; do
+for v in souer gilbert hays; do
 	deno task audio --since $LAST_DOWNLOAD $v
 	if [ -d dist ]; then
 		pushd dist
