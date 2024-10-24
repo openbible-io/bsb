@@ -18,7 +18,7 @@ for v in souer gilbert hays; do
 			ffmpeg -i $f ${f%.mp3}.ogg
 			rm $f
 		done
-		# 0 = no compression (mp3 is already compressed, at most 1-2% gains from DEFLATE)
+		# 0 = no compression (ogg is already compressed, at most 1-2% gains from DEFLATE)
 		# r = recursive
 		# m = move into zipfile
 		# s 1950m = split into 1950M since Github has a 2GB file limit
