@@ -69,7 +69,7 @@ for (const f of Deno.readDirSync(usfmDir)) {
 			const replacer = (s: string) => s.replace(
 				'</h2>',
 				`</h2>${Object.keys(publication.audio)
-					.map(v => `/${v}/${id}/${chapFmt}.webm`)
+					.map(v => `/${v}/${id.book.toLowerCase()}/${chapFmt}.webm`)
 					.map(href => `<audio controls>
 <source src="${href}" type="audio/webm"></audio>
 <p>Your browser does not support HTML audio, but you can still <a href="${href}">download it,</p>
