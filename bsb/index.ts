@@ -345,6 +345,7 @@ export const audio = {
 		// 	-of default=noprint_wrappers=1:nokey=1 {} \; \
 		// 	| awk 'BEGIN { sum=0 } { sum+=$1 } END {print sum }'
 		runtime: 249190,
+		size: 1063405194,
 	} as Audio,
 	hays: {
 		downloadUrl: "https://openbible.com/audio/hays/",
@@ -358,6 +359,7 @@ export const audio = {
 		publisherUrl: "https://biblehub.com/",
 		publishDate: "2022-10-07",
 		runtime: 307301,
+		size: 1312296549,
 	} as Audio,
 	gilbert: {
 		downloadUrl: "https://openbible.com/audio/gilbert/",
@@ -371,6 +373,7 @@ export const audio = {
 		publisherUrl: "https://biblehub.com/",
 		publishDate: "2022-09-24",
 		runtime: 258752,
+		size: 1034851110,
 	} as Audio,
 };
 
@@ -439,4 +442,5 @@ export default {
 	preface,
 	toc,
 	audio,
+	size: 0,
 } as Publication;

@@ -120,6 +120,7 @@ for (const f of files) {
 	render.html(all, (s: string) => html += s);
 	html += "</body></html>";
 	Deno.writeTextFileSync(path.join("dist", "all.html"), html, { create: true });
+	publication.size = html.length;
 }
 
 const indexPage = preactRender(

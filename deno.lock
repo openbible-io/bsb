@@ -2,9 +2,10 @@
   "version": "4",
   "specifiers": {
     "jsr:@openbible/bconv@*": "0.1.8",
-    "jsr:@openbible/core@~0.1.19": "0.1.19",
+    "jsr:@openbible/core@0.1.20": "0.1.20",
     "jsr:@std/bytes@^1.0.2": "1.0.2",
     "jsr:@std/cli@*": "1.0.6",
+    "jsr:@std/cli@^1.0.6": "1.0.6",
     "jsr:@std/fs@^1.0.4": "1.0.5",
     "jsr:@std/io@0.225": "0.225.0",
     "jsr:@std/path@^1.0.6": "1.0.7",
@@ -21,8 +22,8 @@
         "npm:chalk"
       ]
     },
-    "@openbible/core@0.1.19": {
-      "integrity": "3fa56a7e8808dc3af7dfa5d0de103beca1040da6ca86bb587b931aa3e04aebfe"
+    "@openbible/core@0.1.20": {
+      "integrity": "5441d77744bea757e58d823a9bfde0fb0247762d19891638274525fc61f9a550"
     },
     "@std/bytes@1.0.2": {
       "integrity": "fbdee322bbd8c599a6af186a1603b3355e59a5fb1baa139f8f4c3c9a1b3e3d57"
@@ -72,7 +73,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@openbible/bconv@*",
-      "jsr:@openbible/core@~0.1.19",
+      "jsr:@openbible/core@0.1.20",
       "jsr:@std/cli@^1.0.6",
       "jsr:@std/fs@^1.0.4",
       "jsr:@std/io@0.225",
