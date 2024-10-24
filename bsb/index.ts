@@ -326,6 +326,7 @@ const toc: Toc = {
 	},
 };
 
+/** Export to maintain typeof keys */
 export const audio = {
 	souer: {
 		downloadUrl: 'https://openbible.com/audio/souer/',
@@ -423,6 +424,7 @@ const preface = `
 </p>
 `;
 
+/** Publication metadata */
 export default {
 	title: 'Berean Standard Bible',
 	lang: 'eng',
