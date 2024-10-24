@@ -1,0 +1,22 @@
+name: Publish
+on:
+  push:
+    branches:
+      - master
+permissions:
+  # tag
+  contents: write
+  # provenance
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: denoland/setup-deno@v2
+      - run: deno fmt --check
+      - run: deno lint
+      - uses: openbible-io/bump-and-publish@v0.0.3
