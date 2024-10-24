@@ -7,7 +7,7 @@ Source control and normalization for the
 [Berean Standard Bible](https://bereanbible.com/).
 
 ```ts
-import * as bsb from '@openbible/bsb';
+import * as bsb from "@openbible/bsb";
 
 console.log(bsb);
 // {
@@ -21,13 +21,9 @@ console.log(bsb);
 //   "license": "CC-PDDC",
 //   "licenseUrl": "https://berean.bible/licensing.htm",
 //   "authors": [...],
-//   "writings": [
-//     {
-//       "type": "bible",
-//       "preface": "...",
-//       "books": { ... }
-//     }
-//   ]
+//   "preface": "<p></p>",
+//   "toc": {...}
+//   "audio": {...},
 // }
 ```
 

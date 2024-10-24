@@ -11,7 +11,6 @@
 	},
 	"fmt": {
 		"useTabs": true,
-		"singleQuote": true,
 		"exclude": ["dist"]
 	},
 	"compilerOptions": {

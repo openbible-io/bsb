@@ -1,27 +1,27 @@
-import type { books } from '@openbible/core';
-import { copy, readerFromStreamReader } from '@std/io';
-import { dirname, join } from 'node:path';
-import pub, { audio } from '../bsb/index.ts';
-import { parseArgs } from 'jsr:@std/cli/parse-args';
+import type { books } from "@openbible/core";
+import { copy, readerFromStreamReader } from "@std/io";
+import { dirname, join } from "node:path";
+import pub, { audio } from "../bsb/index.ts";
+import { parseArgs } from "jsr:@std/cli/parse-args";
 
 type Version = keyof typeof audio;
-const outdir = 'dist';
+const outdir = "dist";
 const dateRe = /\d{4}-\d{2}-\d{2}/g;
 let exitCode = 1;
 
 function padStart(n: number, width: number) {
-	return n.toString().padStart(width, '0');
+	return n.toString().padStart(width, "0");
 }
 
 function titleCase(s: string) {
-	if (s[0] >= '0' && s[0] <= '9') {
+	if (s[0] >= "0" && s[0] <= "9") {
 		return s[0] + s[1].toUpperCase() + s.substring(2);
 	}
 	return s[0].toUpperCase() + s.substring(1);
 }
 
 const mirrors = {
-	'https://openbible.com': (
+	"https://openbible.com": (
 		v: Version,
 		book?: books.Book,
 		chapter?: number,
@@ -29,25 +29,25 @@ const mirrors = {
 		let res = `/audio/${v}`;
 		if (!book) return res;
 
-		res += '/BSB_';
+		res += "/BSB_";
 		const i = Object.keys(pub.toc).indexOf(book);
-		if (book == 'tit') book = 'tts' as 'tit';
+		if (book == "tit") book = "tts" as "tit";
 		if (!chapter) return res;
 		res += `${padStart(i + 1, 2)}_${titleCase(book)}_${padStart(chapter, 3)}`;
-		if (v != 'souer') res += `_${v[0].toUpperCase()}`;
-		res += '.mp3';
+		if (v != "souer") res += `_${v[0].toUpperCase()}`;
+		res += ".mp3";
 		return res;
 	},
 	// Reencoded and slightly smaller filesizes.
 	// Currently missing `gilbert`
-	'https://tim.z73.com': (v: Version, book?: books.Book, chapter?: number) => {
+	"https://tim.z73.com": (v: Version, book?: books.Book, chapter?: number) => {
 		let res = `/${v}/audio`;
 		if (!book) return res;
 
 		res += `/${titleCase(book)}`;
 		if (!chapter) return res;
-		res += padStart(chapter, book == 'psa' ? 3 : 2);
-		res += '.mp3';
+		res += padStart(chapter, book == "psa" ? 3 : 2);
+		res += ".mp3";
 		return res;
 	},
 } as const;
@@ -62,11 +62,11 @@ async function download(
 	const resp = await fetch(url);
 	if (!resp.ok) throw Error(`${resp.status} downloading ${url}`);
 	const text = await resp.text();
-	let lastUpdated = '1990-01-01';
+	let lastUpdated = "1990-01-01";
 	for (const m of text.matchAll(dateRe)) {
 		if (m[0] > lastUpdated) lastUpdated = m[0];
 	}
-	console.log(url, 'last updated', lastUpdated);
+	console.log(url, "last updated", lastUpdated);
 	if (since && lastUpdated < since) return;
 
 	for (const e of Object.entries(pub.toc)) {
@@ -74,14 +74,14 @@ async function download(
 		for (let i = 0; i < nChapters; i++) {
 			const chapter = i + 1;
 			const url = mirror +
-				mirrors[mirror](version as 'souer', book as books.Book, chapter);
+				mirrors[mirror](version as "souer", book as books.Book, chapter);
 			const fname = join(outdir, version, book, `${padStart(chapter, 3)}.mp3`);
-			console.log(url, '->', fname);
+			console.log(url, "->", fname);
 
 			const resp = await fetch(url);
 			if (!resp.ok) throw Error(`${resp.status} downloading ${url}`);
 			const rdr = resp.body?.getReader();
-			if (!rdr) throw Error('no response body ' + url);
+			if (!rdr) throw Error("no response body " + url);
 			const r = readerFromStreamReader(rdr);
 
 			await Deno.mkdir(dirname(fname), { recursive: true });
@@ -96,9 +96,9 @@ async function download(
 }
 
 const flags = parseArgs(Deno.args, {
-	string: ['mirror', 'since'],
+	string: ["mirror", "since"],
 	default: {
-		mirror: 'https://openbible.com',
+		mirror: "https://openbible.com",
 	},
 });
 
@@ -107,18 +107,18 @@ if (flags.since && !flags.since.match(dateRe)) {
 }
 
 const versions = flags._.filter(Boolean);
-console.log('downloading', versions, 'since', flags.since);
+console.log("downloading", versions, "since", flags.since);
 
 for (const version of versions) {
 	if (!(version in audio)) {
 		throw Error(
-			`Expected "${version ?? ''}" to be in ${Object.keys(audio).join(', ')}`,
+			`Expected "${version ?? ""}" to be in ${Object.keys(audio).join(", ")}`,
 		);
 	}
 	if (!(flags.mirror in mirrors)) {
 		throw Error(
-			`Expected "${flags.mirror ?? ''}" to be in ${
-				Object.keys(mirrors).join(', ')
+			`Expected "${flags.mirror ?? ""}" to be in ${
+				Object.keys(mirrors).join(", ")
 			}`,
 		);
 	}
@@ -129,5 +129,5 @@ for (const version of versions) {
 		flags.since,
 	);
 }
-console.log('downloaded audio');
+console.log("downloaded audio");
 Deno.exit(exitCode);

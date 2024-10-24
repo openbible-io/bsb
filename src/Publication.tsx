@@ -1,11 +1,11 @@
-import pub from '../bsb/index.ts';
+import pub from "../bsb/index.ts";
 
 export default function Publication() {
 	return (
 		<>
 			<header>
 				Note: For an interactive study experience that uses this data, please
-				visit <a href='https://openbible.io'>https://openbible.io</a>
+				visit <a href="https://openbible.io">https://openbible.io</a>
 			</header>
 			<h1>{pub.title}</h1>
 			<table>
@@ -44,9 +44,9 @@ export default function Publication() {
 			<ul>
 				{(pub.authors ?? []).map((a) => (
 					<li>
-						<a href={a.url}>{a.name}</a> {a.qualifications?.join(', ')}
+						<a href={a.url}>{a.name}</a> {a.qualifications?.join(", ")}
 						<div>
-							{a.contributions?.join(', ')}
+							{a.contributions?.join(", ")}
 						</div>
 					</li>
 				))}
