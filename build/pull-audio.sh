@@ -11,14 +11,18 @@ for v in souer gilbert hays; do
 	LAST_RELEASE=$(gh release ls --json tagName,createdAt -q "map(select(.tagName | test(\"^audio-$v-.*\"))) | .[]")
 	LAST_TAG=$(echo $LAST_RELEASE | jq -r ".tagName")
 	LAST_RELEASE_DATE=$(echo $LAST_RELEASE | jq -r ".createdAt" | cut -c-10)
+	if [ $1 = 'true' ]; then
+		echo "good"
+		LAST_RELEASE_DATE=""
+	fi
 
 	set -e
 	if deno task audio --since "$LAST_RELEASE_DATE" $v; then
 		for f in $(find . -name '*.mp3'); do
-			ffmpeg -i $f ${f%.mp3}.ogg
+			ffmpeg -i $f ${f%.mp3}.webm
 			rm $f
 		done
-		# 0 = no compression (ogg is already compressed, at most 1-2% gains from DEFLATE)
+		# 0 = no compression (webm is already compressed, at most 1-2% gains from DEFLATE)
 		# r = recursive
 		# m = move into zipfile
 		# s 1950m = split into 1950M since Github has a 2GB file limit
