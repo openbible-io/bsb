@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 # Pulls audio if apache web server has files dated after latest `audio-$version` release tag.
 #
 # Ideally these files would be versioned in Git LFS and updated separately, but Github only allows
@@ -20,8 +20,8 @@ fi
 set -e
 if deno task audio --since "$LAST_RELEASE_DATE" $v; then
 	# bitrate https://wiki.xiph.org/Opus_Recommended_Settings
-	find . -name '*.mp3' | parallel ffmpeg \
-		-hide_banner -loglevel warning -stats \
+	find . -name '*.mp3' | parallel --eta --bar ffmpeg \
+		-hide_banner -loglevel warning \
 		-y -i {} \
 		-map_metadata -1 \
 		-b:a 32k \
