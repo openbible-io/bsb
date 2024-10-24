@@ -18,10 +18,8 @@ for v in souer gilbert hays; do
 
 	set -e
 	if deno task audio --since "$LAST_RELEASE_DATE" $v; then
-		for f in $(find . -name '*.mp3'); do
-			ffmpeg -i $f ${f%.mp3}.webm
-			rm $f
-		done
+		find . -name '*.mp3' | parallel ffmpeg -i {} {.}.webm
+		find . -name '*.mp3' -exec rm ;
 		# 0 = no compression (webm is already compressed, at most 1-2% gains from DEFLATE)
 		# r = recursive
 		# m = move into zipfile
