@@ -19,7 +19,11 @@ fi
 
 set -e
 if deno task audio --since "$LAST_RELEASE_DATE" $v; then
-	find . -name '*.mp3' | parallel ffmpeg -i {} {.}.webm
+	find . -name '*.mp3' | parallel ffmpeg \
+		-hide_banner -loglevel warning -stats \
+		-y -i {} \
+		-b:a 48k \
+		{.}.webm
 	find . -name '*.mp3' -exec rm {} \;
 	# 0 = no compression (webm is already compressed, at most 1-2% gains from DEFLATE)
 	# r = recursive
