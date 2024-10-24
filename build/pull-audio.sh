@@ -22,6 +22,7 @@ if deno task audio --since "$LAST_RELEASE_DATE" $v; then
 	find . -name '*.mp3' | parallel ffmpeg \
 		-hide_banner -loglevel warning -stats \
 		-y -i {} \
+		-map_metadata -1 \
 		-b:a 48k \
 		{.}.webm
 	find . -name '*.mp3' -exec rm {} \;
