@@ -14,6 +14,10 @@ for v in souer gilbert hays; do
 
 	set -e
 	if deno task audio --since "$LAST_RELEASE_DATE" $v; then
+		for f in $(find . -name '*.mp3'); do
+			ffmpeg -i $f ${f%.mp3}.ogg
+			rm $f
+		done
 		# 0 = no compression (mp3 is already compressed, at most 1-2% gains from DEFLATE)
 		# r = recursive
 		# m = move into zipfile

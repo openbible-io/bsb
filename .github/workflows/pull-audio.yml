@@ -12,6 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: denoland/setup-deno@v2
+      - uses: FedericoCarboni/setup-ffmpeg@v3
       - run: ./build/pull-audio.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

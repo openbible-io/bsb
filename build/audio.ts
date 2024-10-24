@@ -1,6 +1,6 @@
 import type { books } from '@openbible/core';
 import { copy, readerFromStreamReader } from '@std/io';
-import { dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import pub, { audio } from '../bsb/index.ts';
 import { parseArgs } from 'jsr:@std/cli/parse-args';
 
@@ -75,7 +75,7 @@ async function download(
 			const chapter = i + 1;
 			const url = mirror +
 				mirrors[mirror](version as 'souer', book as books.Book, chapter);
-			const fname = `${outdir}/${book}/${padStart(chapter, 3)}_${version}.mp3`;
+			const fname = join(outdir, version, book, `${padStart(chapter, 3)}.mp3`);
 			console.log(url, '->', fname);
 
 			const resp = await fetch(url);
