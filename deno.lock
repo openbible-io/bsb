@@ -1,77 +1,75 @@
 {
-  "version": "3",
-  "packages": {
-    "specifiers": {
-      "jsr:@openbible/bconv": "jsr:@openbible/bconv@0.1.7",
-      "jsr:@std/bytes@^1.0.2": "jsr:@std/bytes@1.0.2",
-      "jsr:@std/cli": "jsr:@std/cli@1.0.6",
-      "jsr:@std/cli@^1.0.6": "jsr:@std/cli@1.0.6",
-      "jsr:@std/fs@^1.0.4": "jsr:@std/fs@1.0.4",
-      "jsr:@std/io@^0.225.0": "jsr:@std/io@0.225.0",
-      "jsr:@std/path@^1.0.6": "jsr:@std/path@1.0.6",
-      "npm:@types/node": "npm:@types/node@18.16.19",
-      "npm:chalk@^5.3.0": "npm:chalk@5.3.0",
-      "npm:preact-render-to-string@^6.5.11": "npm:preact-render-to-string@6.5.11_preact@10.24.3",
-      "npm:preact@^10.24.3": "npm:preact@10.24.3"
+  "version": "4",
+  "specifiers": {
+    "jsr:@openbible/bconv@*": "0.1.7",
+    "jsr:@openbible/core@~0.1.19": "0.1.19",
+    "jsr:@std/bytes@^1.0.2": "1.0.2",
+    "jsr:@std/cli@*": "1.0.6",
+    "jsr:@std/cli@^1.0.6": "1.0.6",
+    "jsr:@std/fs@^1.0.4": "1.0.4",
+    "jsr:@std/io@0.225": "0.225.0",
+    "jsr:@std/path@^1.0.6": "1.0.6",
+    "npm:@types/node@*": "18.16.19",
+    "npm:chalk@^5.3.0": "5.3.0",
+    "npm:preact-render-to-string@^6.5.11": "6.5.11_preact@10.24.3",
+    "npm:preact@^10.24.3": "10.24.3"
+  },
+  "jsr": {
+    "@openbible/bconv@0.1.7": {
+      "integrity": "5db3a38ee6af8e4ff05008ec576d5c6e0273f2969ff0bf320f55159331fd3c53",
+      "dependencies": [
+        "npm:chalk"
+      ]
     },
-    "jsr": {
-      "@openbible/bconv@0.1.7": {
-        "integrity": "5db3a38ee6af8e4ff05008ec576d5c6e0273f2969ff0bf320f55159331fd3c53",
-        "dependencies": [
-          "npm:chalk@^5.3.0"
-        ]
-      },
-      "@std/bytes@1.0.2": {
-        "integrity": "fbdee322bbd8c599a6af186a1603b3355e59a5fb1baa139f8f4c3c9a1b3e3d57"
-      },
-      "@std/cli@1.0.6": {
-        "integrity": "d22d8b38c66c666d7ad1f2a66c5b122da1704f985d3c47f01129f05abb6c5d3d"
-      },
-      "@std/fs@1.0.4": {
-        "integrity": "2907d32d8d1d9e540588fd5fe0ec21ee638134bd51df327ad4e443aaef07123c",
-        "dependencies": [
-          "jsr:@std/path@^1.0.6"
-        ]
-      },
-      "@std/io@0.225.0": {
-        "integrity": "c1db7c5e5a231629b32d64b9a53139445b2ca640d828c26bf23e1c55f8c079b3",
-        "dependencies": [
-          "jsr:@std/bytes@^1.0.2"
-        ]
-      },
-      "@std/path@1.0.6": {
-        "integrity": "ab2c55f902b380cf28e0eec501b4906e4c1960d13f00e11cfbcd21de15f18fed"
-      }
+    "@openbible/core@0.1.19": {
+      "integrity": "3fa56a7e8808dc3af7dfa5d0de103beca1040da6ca86bb587b931aa3e04aebfe"
     },
-    "npm": {
-      "@types/node@18.16.19": {
-        "integrity": "sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA==",
-        "dependencies": {}
-      },
-      "chalk@5.3.0": {
-        "integrity": "sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==",
-        "dependencies": {}
-      },
-      "preact-render-to-string@6.5.11_preact@10.24.3": {
-        "integrity": "sha512-ubnauqoGczeGISiOh6RjX0/cdaF8v/oDXIjO85XALCQjwQP+SB4RDXXtvZ6yTYSjG+PC1QRP2AhPgCEsM2EvUw==",
-        "dependencies": {
-          "preact": "preact@10.24.3"
-        }
-      },
-      "preact@10.24.3": {
-        "integrity": "sha512-Z2dPnBnMUfyQfSQ+GBdsGa16hz35YmLmtTLhM169uW944hYL6xzTYkJjC07j+Wosz733pMWx0fgON3JNw1jJQA==",
-        "dependencies": {}
-      }
+    "@std/bytes@1.0.2": {
+      "integrity": "fbdee322bbd8c599a6af186a1603b3355e59a5fb1baa139f8f4c3c9a1b3e3d57"
+    },
+    "@std/cli@1.0.6": {
+      "integrity": "d22d8b38c66c666d7ad1f2a66c5b122da1704f985d3c47f01129f05abb6c5d3d"
+    },
+    "@std/fs@1.0.4": {
+      "integrity": "2907d32d8d1d9e540588fd5fe0ec21ee638134bd51df327ad4e443aaef07123c",
+      "dependencies": [
+        "jsr:@std/path"
+      ]
+    },
+    "@std/io@0.225.0": {
+      "integrity": "c1db7c5e5a231629b32d64b9a53139445b2ca640d828c26bf23e1c55f8c079b3",
+      "dependencies": [
+        "jsr:@std/bytes"
+      ]
+    },
+    "@std/path@1.0.6": {
+      "integrity": "ab2c55f902b380cf28e0eec501b4906e4c1960d13f00e11cfbcd21de15f18fed"
     }
   },
-  "remote": {},
+  "npm": {
+    "@types/node@18.16.19": {
+      "integrity": "sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA=="
+    },
+    "chalk@5.3.0": {
+      "integrity": "sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w=="
+    },
+    "preact-render-to-string@6.5.11_preact@10.24.3": {
+      "integrity": "sha512-ubnauqoGczeGISiOh6RjX0/cdaF8v/oDXIjO85XALCQjwQP+SB4RDXXtvZ6yTYSjG+PC1QRP2AhPgCEsM2EvUw==",
+      "dependencies": [
+        "preact"
+      ]
+    },
+    "preact@10.24.3": {
+      "integrity": "sha512-Z2dPnBnMUfyQfSQ+GBdsGa16hz35YmLmtTLhM169uW944hYL6xzTYkJjC07j+Wosz733pMWx0fgON3JNw1jJQA=="
+    }
+  },
   "workspace": {
     "dependencies": [
-      "jsr:@openbible/bconv",
-      "jsr:@openbible/core@^0.1.18",
+      "jsr:@openbible/bconv@*",
+      "jsr:@openbible/core@~0.1.19",
       "jsr:@std/cli@^1.0.6",
       "jsr:@std/fs@^1.0.4",
-      "jsr:@std/io@^0.225.0",
+      "jsr:@std/io@0.225",
       "jsr:@std/path@^1.0.6",
       "npm:preact-render-to-string@^6.5.11",
       "npm:preact@^10.24.3"

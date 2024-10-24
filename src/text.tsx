@@ -66,14 +66,16 @@ for (const f of Deno.readDirSync(usfmDir)) {
 		if (flushChapter) {
 			const chapFmt = flushChapter.toString().padStart(3, '0');
 			const fname = path.join(dir, `${chapFmt}.html`);
-			const replacer = (s: string) => s.replace(
-				'</h2>',
-				`</h2>${Object.keys(publication.audio)
-					.map(v => `/${v}/${id.book.toLowerCase()}/${chapFmt}.webm`)
-					.map(href => `<audio controls src="${href}"></audio>`)
-					.join('')
-				}`
-			);
+			const replacer = (s: string) =>
+				s.replace(
+					'</h2>',
+					`</h2>${
+						Object.keys(publication.audio ?? [])
+							.map((v) => `/${v}/${id.book.toLowerCase()}/${chapFmt}.webm`)
+							.map((href) => `<audio controls src="${href}"></audio>`)
+							.join('')
+					}`,
+				);
 			writeAst(fname, `${title.text} ${flushChapter}`, chapter, replacer);
 			chapter = [title];
 		}

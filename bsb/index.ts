@@ -340,6 +340,11 @@ export const audio = {
 		publisher: 'Bible Hub',
 		publisherUrl: 'https://biblehub.com/',
 		publishDate: '2023-08-25',
+		// find dist/souer -type f -exec \
+		//	ffprobe -v error -show_entries format=duration \
+		// 	-of default=noprint_wrappers=1:nokey=1 {} \; \
+		// 	| awk 'BEGIN { sum=0 } { sum+=$1 } END {print sum }'
+		runtime: 249190,
 	} as Audio,
 	hays: {
 		downloadUrl: 'https://openbible.com/audio/hays/',
@@ -352,6 +357,7 @@ export const audio = {
 		publisher: 'Bible Hub',
 		publisherUrl: 'https://biblehub.com/',
 		publishDate: '2022-10-07',
+		runtime: 307301,
 	} as Audio,
 	gilbert: {
 		downloadUrl: 'https://openbible.com/audio/gilbert/',
@@ -364,6 +370,7 @@ export const audio = {
 		publisher: 'Bible Hub',
 		publisherUrl: 'https://biblehub.com/',
 		publishDate: '2022-09-24',
+		runtime: 258752,
 	} as Audio,
 };
 
