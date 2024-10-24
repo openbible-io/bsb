@@ -19,11 +19,12 @@ fi
 
 set -e
 if deno task audio --since "$LAST_RELEASE_DATE" $v; then
+	# bitrate https://wiki.xiph.org/Opus_Recommended_Settings
 	find . -name '*.mp3' | parallel ffmpeg \
 		-hide_banner -loglevel warning -stats \
 		-y -i {} \
 		-map_metadata -1 \
-		-b:a 32k \ # https://wiki.xiph.org/Opus_Recommended_Settings
+		-b:a 32k \
 		{.}.webm
 	find . -name '*.mp3' -exec rm {} \;
 	# 0 = no compression (webm is already compressed, at most 1-2% gains from DEFLATE)
