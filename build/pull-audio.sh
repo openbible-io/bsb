@@ -23,7 +23,7 @@ if deno task audio --since "$LAST_RELEASE_DATE" $v; then
 		-hide_banner -loglevel warning -stats \
 		-y -i {} \
 		-map_metadata -1 \
-		-b:a 48k \
+		-b:a 32k \ # https://wiki.xiph.org/Opus_Recommended_Settings
 		{.}.webm
 	find . -name '*.mp3' -exec rm {} \;
 	# 0 = no compression (webm is already compressed, at most 1-2% gains from DEFLATE)
