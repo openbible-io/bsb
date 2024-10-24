@@ -68,9 +68,14 @@ for (const f of Deno.readDirSync(usfmDir)) {
 			const fname = path.join(dir, `${chapFmt}.html`);
 			const replacer = (s: string) => s.replace(
 				'</h2>',
-				`</h2>${Object.keys(publication.audio).map(v =>
-					`<audio controls src="/${v}/${id}/${chapFmt}.ogg"></audio>`).join('')}
-				`,
+				`</h2>${Object.keys(publication.audio)
+					.map(v => `/${v}/${id}/${chapFmt}.ogg`)
+					.map(href => `<audio controls>
+<source src="${href}" type="audio/ogg"></audio>
+<p>Your browser does not support HTML audio, but you can still <a href="${href}">download it,</p>
+</audio>`)
+					.join('')
+				}`
 			);
 			writeAst(fname, `${title.text} ${flushChapter}`, chapter, replacer);
 			chapter = [title];
