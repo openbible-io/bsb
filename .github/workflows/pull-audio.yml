@@ -6,7 +6,7 @@ on:
     inputs:
       force:
         type: boolean
-        description: Redownload regardless of whether there is a change
+        description: Force redownload
 permissions:
   contents: write
 
