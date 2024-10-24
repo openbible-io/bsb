@@ -70,7 +70,7 @@ for (const f of Deno.readDirSync(usfmDir)) {
 				'</h2>',
 				`</h2>${Object.keys(publication.audio)
 					.map(v => `/${v}/${id.book.toLowerCase()}/${chapFmt}.webm`)
-					.map(href => `<audio controls src="${href}"</audio>`)
+					.map(href => `<audio controls src="${href}"></audio>`)
 					.join('')
 				}`
 			);
