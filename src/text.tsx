@@ -136,6 +136,14 @@ Deno.writeTextFileSync(
 	JSON.stringify(publication),
 	{ create: true },
 );
+Deno.writeTextFileSync(
+	path.join("dist", "index.ts"),
+`import type { Publication } from '@openbible/core';
+
+export default ${JSON.stringify(publication, null, 2)} as Publication;
+`,
+	{ create: true },
+);
 
 const notFoundPage = preactRender(<Page title="Not found">404</Page>);
 Deno.writeTextFileSync(path.join("dist", "404.html"), notFoundPage, {
