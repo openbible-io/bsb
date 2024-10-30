@@ -23,7 +23,7 @@
 	},
 	"name": "@openbible/bsb",
 	"version": "0.0.0",
-	"exports": "./bsb/index.ts",
+	"exports": "./dist/index.json",
 	"publish": {
 		"include": [
 			"bsb/index.ts",
