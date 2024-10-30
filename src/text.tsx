@@ -116,11 +116,11 @@ for (const f of files) {
 }
 
 {
-	let html = '<html><head><meta charset="utf-8" /></head><body>';
+	let html = '<html><head><meta charset="utf-8"/></head><body>';
 	render.html(all, (s: string) => html += s);
 	html += "</body></html>";
 	Deno.writeTextFileSync(path.join("dist", "all.html"), html, { create: true });
-	publication.size = html.length;
+	publication.size = new TextEncoder().encode(html).length;
 }
 
 const indexPage = preactRender(
@@ -150,4 +150,4 @@ const notFoundPage = preactRender(<Page title="Not found">404</Page>);
 Deno.writeTextFileSync(path.join("dist", "404.html"), notFoundPage, {
 	create: true,
 });
-console.log("generated html, css, and json");
+console.log("generated html, css, json, and ts");

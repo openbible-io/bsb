@@ -19,7 +19,7 @@
 	},
 	"tasks": {
 		"audio": "deno -A ./build/audio.ts",
-		"site": "deno -A ./src/text.tsx "
+		"text": "deno -A ./src/text.tsx "
 	},
 	"name": "@openbible/bsb",
 	"version": "0.0.0",

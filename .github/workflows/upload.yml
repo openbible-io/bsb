@@ -18,7 +18,7 @@ jobs:
           done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: deno task site
+      - run: deno task text
       - run: du -sh dist
       - run: npx wrangler pages deploy dist
         env:
