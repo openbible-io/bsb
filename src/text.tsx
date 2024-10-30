@@ -138,8 +138,9 @@ Deno.writeTextFileSync(
 );
 Deno.writeTextFileSync(
 	path.join("dist", "index.ts"),
-`import type { Publication } from '@openbible/core';
+	`import type { Publication } from "@openbible/core";
 
+/** Publication metadata. */
 export default ${JSON.stringify(publication, null, 2)} as Publication;
 `,
 	{ create: true },
