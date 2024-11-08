@@ -1,7 +1,7 @@
 import {
 	type Ast,
 	canonicalize,
-	render,
+	renderers,
 	type TextNode,
 	usfm,
 } from "@openbible/bconv";
@@ -18,24 +18,35 @@ for await (const dirEntry of walk("public")) {
 	else Deno.copyFileSync(dirEntry.path, newPath);
 }
 
-function writeHtml(fname: string, title: string, html: string) {
-	const page = "<!DOCTYPE html>" + preactRender(
+function writePage(fname: string, title: string, html: string) {
+	const page = "<!doctype html>" + preactRender(
 		<Page title={title}>
-			<div dangerouslySetInnerHTML={{ __html: html }} />
+			<main dangerouslySetInnerHTML={{ __html: html }} />
 		</Page>,
 	);
 	Deno.writeTextFileSync(fname, page, { create: true });
 }
 
 function writeAst(
-	fname: string,
-	title: string,
+	book: string,
+	chapter: string,
 	ast: Ast,
-	replaceFn = (s: string) => s,
-) {
+): string {
 	let html = "";
-	render.html(ast, (s: string) => html += replaceFn(s));
-	writeHtml(fname, title, html);
+	const renderer = new renderers.Html((s) =>
+		html += s.replace(
+			"</h2>",
+			`</h2>${
+				Object.keys(publication.audio ?? [])
+					.map((v) => `/${v}/${book.toLowerCase()}/${chapter}.webm`)
+					.map((href) => `<audio controls src="${href}"></audio>`)
+					.join("")
+			}`,
+		)
+	);
+	renderer.render(ast);
+
+	return html;
 }
 
 const all: Ast = [];
@@ -60,6 +71,7 @@ for (const f of files) {
 	const dir = path.join("dist", id.book.toLowerCase());
 	Deno.mkdirSync(dir, { recursive: true });
 
+	let bookHtml = '';
 	let chapter: Ast = [];
 	let chapterN: number | undefined;
 	for (let i = 0; i < ast.length; i++) {
@@ -73,24 +85,25 @@ for (const f of files) {
 		if (flushChapter) {
 			const chapFmt = flushChapter.toString().padStart(3, "0");
 			const fname = path.join(dir, `${chapFmt}.html`);
-			const replacer = (s: string) =>
-				s.replace(
-					"</h2>",
-					`</h2>${
-						Object.keys(publication.audio ?? [])
-							.map((v) => `/${v}/${id.book.toLowerCase()}/${chapFmt}.webm`)
-							.map((href) => `<audio controls src="${href}"></audio>`)
-							.join("")
-					}`,
-				);
-			writeAst(fname, `${title.text} ${flushChapter}`, chapter, replacer);
+			let chapterHtml = writeAst(id.book, chapFmt, chapter); 
+			bookHtml += chapterHtml;
+			chapterHtml += `<div class="lrNav">
+<div>
+${flushChapter > 1 ? `<a href="${(flushChapter - 1).toString().padStart(3, '0')}.html">←</a>` : ''}
+</div>
+<div>
+${flushChapter < publication.toc[id.book.toLowerCase()].nChapters ? `<a href="${(flushChapter + 1).toString().padStart(3, '0')}.html">→</a>` : ''}
+</div>
+</div>`;
+
+			writePage(fname, `${title.text} ${flushChapter}`, chapterHtml);
 			chapter = [title];
 		}
 
 		chapter.push(n);
 	}
 
-	writeAst(path.join(dir, "all.html"), title.text, ast);
+	writePage(path.join(dir, "all.html"), title.text, bookHtml);
 
 	const bookPage = preactRender(
 		<Page title={title.text}>
@@ -99,11 +112,11 @@ for (const f of files) {
 				<h2>Chapters</h2>
 				<ul>
 					<li>
-						<a href="all">All</a>
+						<a href="all.html">All</a>
 					</li>
 					{[...Array(chapterN).keys()].map((i) => i + 1).map((c) => (
 						<li>
-							<a href={c.toString().padStart(3, "0")}>{c}</a>
+							<a href={`${c.toString().padStart(3, "0")}.html`}>{c}</a>
 						</li>
 					))}
 				</ul>
@@ -117,7 +130,8 @@ for (const f of files) {
 
 {
 	let html = '<html><head><meta charset="utf-8"/></head><body>';
-	render.html(all, (s: string) => html += s);
+	const renderer = new renderers.Html((s) => html += s);
+	renderer.render(all);
 	html += "</body></html>";
 	Deno.writeTextFileSync(path.join("dist", "all.html"), html, { create: true });
 	publication.size = new TextEncoder().encode(html).length;

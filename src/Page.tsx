@@ -21,7 +21,7 @@ export default function Page(
 						</li>
 						{Object.entries(pub.toc).map(([id, { name }]) => (
 							<li>
-								<a href={`/${id}/index`}>{name}</a>
+								<a href={`/${id}`}>{name}</a>
 							</li>
 						))}
 					</ul>
