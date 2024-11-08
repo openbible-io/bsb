@@ -71,7 +71,7 @@ for (const f of files) {
 	const dir = path.join("dist", id.book.toLowerCase());
 	Deno.mkdirSync(dir, { recursive: true });
 
-	let bookHtml = '';
+	let bookHtml = "";
 	let chapter: Ast = [];
 	let chapterN: number | undefined;
 	for (let i = 0; i < ast.length; i++) {
@@ -85,14 +85,26 @@ for (const f of files) {
 		if (flushChapter) {
 			const chapFmt = flushChapter.toString().padStart(3, "0");
 			const fname = path.join(dir, `${chapFmt}.html`);
-			let chapterHtml = writeAst(id.book, chapFmt, chapter); 
+			let chapterHtml = writeAst(id.book, chapFmt, chapter);
 			bookHtml += chapterHtml;
 			chapterHtml += `<div class="lrNav">
 <div>
-${flushChapter > 1 ? `<a href="${(flushChapter - 1).toString().padStart(3, '0')}.html">←</a>` : ''}
+${
+				flushChapter > 1
+					? `<a href="${
+						(flushChapter - 1).toString().padStart(3, "0")
+					}.html">←</a>`
+					: ""
+			}
 </div>
 <div>
-${flushChapter < publication.toc[id.book.toLowerCase()].nChapters ? `<a href="${(flushChapter + 1).toString().padStart(3, '0')}.html">→</a>` : ''}
+${
+				flushChapter < publication.toc[id.book.toLowerCase()].nChapters
+					? `<a href="${
+						(flushChapter + 1).toString().padStart(3, "0")
+					}.html">→</a>`
+					: ""
+			}
 </div>
 </div>`;
 
