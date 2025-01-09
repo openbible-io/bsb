@@ -1,22 +1,23 @@
 {
   "version": "4",
   "specifiers": {
-    "jsr:@openbible/bconv@0.1.9": "0.1.9",
+    "jsr:@openbible/bconv@0.1.11": "0.1.11",
     "jsr:@std/bytes@^1.0.2": "1.0.2",
     "jsr:@std/cli@*": "1.0.6",
     "jsr:@std/cli@^1.0.6": "1.0.6",
-    "jsr:@std/fs@^1.0.4": "1.0.5",
+    "jsr:@std/fs@^1.0.4": "1.0.8",
     "jsr:@std/io@0.225": "0.225.0",
-    "jsr:@std/path@^1.0.6": "1.0.7",
+    "jsr:@std/path@^1.0.6": "1.0.8",
     "jsr:@std/path@^1.0.7": "1.0.7",
+    "jsr:@std/path@^1.0.8": "1.0.8",
     "npm:@types/node@*": "22.5.4",
-    "npm:chalk@^5.3.0": "5.3.0",
+    "npm:chalk@^5.3.0": "5.4.1",
     "npm:preact-render-to-string@^6.5.11": "6.5.11_preact@10.24.3",
     "npm:preact@^10.24.3": "10.24.3"
   },
   "jsr": {
-    "@openbible/bconv@0.1.9": {
-      "integrity": "0ddaa9036a0432d261f2e1b50ba9f4283732456338f7067d4474034628c2e7e2",
+    "@openbible/bconv@0.1.11": {
+      "integrity": "b1cbe27e9f3ebe1da0828c763ef72e5fa174b60833bf70b8ed0afaaa9bcc65e3",
       "dependencies": [
         "npm:chalk"
       ]
@@ -33,6 +34,12 @@
         "jsr:@std/path@^1.0.7"
       ]
     },
+    "@std/fs@1.0.8": {
+      "integrity": "161c721b6f9400b8100a851b6f4061431c538b204bb76c501d02c508995cffe0",
+      "dependencies": [
+        "jsr:@std/path@^1.0.8"
+      ]
+    },
     "@std/io@0.225.0": {
       "integrity": "c1db7c5e5a231629b32d64b9a53139445b2ca640d828c26bf23e1c55f8c079b3",
       "dependencies": [
@@ -41,6 +48,9 @@
     },
     "@std/path@1.0.7": {
       "integrity": "76a689e07f0e15dcc6002ec39d0866797e7156629212b28f27179b8a5c3b33a1"
+    },
+    "@std/path@1.0.8": {
+      "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
     }
   },
   "npm": {
@@ -50,8 +60,8 @@
         "undici-types"
       ]
     },
-    "chalk@5.3.0": {
-      "integrity": "sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w=="
+    "chalk@5.4.1": {
+      "integrity": "sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w=="
     },
     "preact-render-to-string@6.5.11_preact@10.24.3": {
       "integrity": "sha512-ubnauqoGczeGISiOh6RjX0/cdaF8v/oDXIjO85XALCQjwQP+SB4RDXXtvZ6yTYSjG+PC1QRP2AhPgCEsM2EvUw==",
@@ -68,7 +78,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@openbible/bconv@0.1.9",
+      "jsr:@openbible/bconv@0.1.11",
       "jsr:@openbible/core@0.1.22",
       "jsr:@std/cli@^1.0.6",
       "jsr:@std/fs@^1.0.4",

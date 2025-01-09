@@ -52,9 +52,9 @@ function writeAst(
 const all: Ast = [];
 const usfmDir = "bsb/bsb_usfm";
 // Order has to be fixed to render `all.html`.
-const files = [...Deno.readDirSync(usfmDir)].sort((f, f2) =>
-	f.name.localeCompare(f2.name)
-);
+const files = [...Deno.readDirSync(usfmDir)]
+.filter(f => f.name.includes("GEN"))
+.sort((f, f2) => f.name.localeCompare(f2.name));
 
 for (const f of files) {
 	if (f.isDirectory) continue;
@@ -73,46 +73,48 @@ for (const f of files) {
 
 	let bookHtml = "";
 	let chapter: Ast = [];
-	let chapterN: number | undefined;
+	let maxChapter = 1;
+
 	for (let i = 0; i < ast.length; i++) {
 		const n = ast[i];
-		const flushChapter = (i == ast.length - 1 || "chapter" in n) && chapterN;
-		if ("chapter" in n) chapterN = n.chapter;
-		if (!chapterN) continue;
+		const isNextChapter  = "chapter" in n && n.chapter > 1;
 
-		if (i == ast.length - 1) chapter.push(n);
+		if (!isNextChapter) chapter.push(n);
 
-		if (flushChapter) {
-			const chapFmt = flushChapter.toString().padStart(3, "0");
+		if (i == ast.length - 1 || isNextChapter) {
+			console.log(i, chapter);
+			const chapterN = chapter.find(n => 'chapter' in n)!.chapter;
+			if (chapterN > maxChapter) maxChapter = chapterN;
+
+			const chapFmt = chapterN.toString().padStart(3, "0");
 			const fname = path.join(dir, `${chapFmt}.html`);
 			let chapterHtml = writeAst(id.book, chapFmt, chapter);
 			bookHtml += chapterHtml;
+
 			chapterHtml += `<div class="lrNav">
 <div>
 ${
-				flushChapter > 1
+				chapterN > 1
 					? `<a href="${
-						(flushChapter - 1).toString().padStart(3, "0")
+						(chapterN - 1).toString().padStart(3, "0")
 					}.html">←</a>`
 					: ""
 			}
 </div>
 <div>
 ${
-				flushChapter < publication.toc[id.book.toLowerCase()].nChapters
+				chapterN < publication.toc[id.book.toLowerCase()].nChapters
 					? `<a href="${
-						(flushChapter + 1).toString().padStart(3, "0")
+						(chapterN + 1).toString().padStart(3, "0")
 					}.html">→</a>`
 					: ""
 			}
 </div>
 </div>`;
 
-			writePage(fname, `${title.text} ${flushChapter}`, chapterHtml);
-			chapter = [title];
+			writePage(fname, `${title.text} ${chapterN}`, chapterHtml);
+			chapter = [n];
 		}
-
-		chapter.push(n);
 	}
 
 	writePage(path.join(dir, "all.html"), title.text, bookHtml);
@@ -126,7 +128,7 @@ ${
 					<li>
 						<a href="all.html">All</a>
 					</li>
-					{[...Array(chapterN).keys()].map((i) => i + 1).map((c) => (
+					{[...Array(maxChapter).keys()].map((i) => i + 1).map((c) => (
 						<li>
 							<a href={`${c.toString().padStart(3, "0")}.html`}>{c}</a>
 						</li>

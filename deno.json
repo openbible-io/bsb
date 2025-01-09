@@ -1,6 +1,6 @@
 {
 	"imports": {
-		"@openbible/bconv": "jsr:@openbible/bconv@0.1.9",
+		"@openbible/bconv": "jsr:@openbible/bconv@0.1.11",
 		"@openbible/core": "jsr:@openbible/core@0.1.22",
 		"@std/cli": "jsr:@std/cli@^1.0.6",
 		"@std/fs": "jsr:@std/fs@^1.0.4",
