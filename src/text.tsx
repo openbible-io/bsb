@@ -53,8 +53,8 @@ const all: Ast = [];
 const usfmDir = "bsb/bsb_usfm";
 // Order has to be fixed to render `all.html`.
 const files = [...Deno.readDirSync(usfmDir)]
-.filter(f => f.name.includes("GEN"))
-.sort((f, f2) => f.name.localeCompare(f2.name));
+	.filter((f) => f.name.includes("GEN"))
+	.sort((f, f2) => f.name.localeCompare(f2.name));
 
 for (const f of files) {
 	if (f.isDirectory) continue;
@@ -77,13 +77,13 @@ for (const f of files) {
 
 	for (let i = 0; i < ast.length; i++) {
 		const n = ast[i];
-		const isNextChapter  = "chapter" in n && n.chapter > 1;
+		const isNextChapter = "chapter" in n && n.chapter > 1;
 
 		if (!isNextChapter) chapter.push(n);
 
 		if (i == ast.length - 1 || isNextChapter) {
 			console.log(i, chapter);
-			const chapterN = chapter.find(n => 'chapter' in n)!.chapter;
+			const chapterN = chapter.find((n) => "chapter" in n)!.chapter;
 			if (chapterN > maxChapter) maxChapter = chapterN;
 
 			const chapFmt = chapterN.toString().padStart(3, "0");
@@ -95,18 +95,14 @@ for (const f of files) {
 <div>
 ${
 				chapterN > 1
-					? `<a href="${
-						(chapterN - 1).toString().padStart(3, "0")
-					}.html">←</a>`
+					? `<a href="${(chapterN - 1).toString().padStart(3, "0")}.html">←</a>`
 					: ""
 			}
 </div>
 <div>
 ${
 				chapterN < publication.toc[id.book.toLowerCase()].nChapters
-					? `<a href="${
-						(chapterN + 1).toString().padStart(3, "0")
-					}.html">→</a>`
+					? `<a href="${(chapterN + 1).toString().padStart(3, "0")}.html">→</a>`
 					: ""
 			}
 </div>
