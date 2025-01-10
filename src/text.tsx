@@ -36,12 +36,13 @@ function writeAst(
 	const renderer = new renderers.Html((s) =>
 		html += s.replace(
 			"</h2>",
-			`</h2>${
+			`${
 				Object.keys(publication.audio ?? [])
+					.filter((_, i) => i == 0)
 					.map((v) => `/${v}/${book.toLowerCase()}/${chapter}.webm`)
 					.map((href) => `<audio controls src="${href}"></audio>`)
 					.join("")
-			}`,
+			}</h2>`,
 		)
 	);
 	renderer.render(ast);
@@ -49,11 +50,23 @@ function writeAst(
 	return html;
 }
 
+function chapterNav(chapter: number, lastChapter: number): string {
+	const chapterLink = (n: number) =>
+		`<a href="${n.toString().padStart(3, "0")}.html">`;
+	return `<nav class="chapterNav">
+<div>
+${chapter > 1 ? `${chapterLink(chapter - 1)}←</a>` : ""}
+</div>
+<div>
+${chapter < lastChapter ? `${chapterLink(chapter + 1)}→</a>` : ""}
+</div>
+</nav>`;
+}
+
 const all: Ast = [];
 const usfmDir = "bsb/bsb_usfm";
 // Order has to be fixed to render `all.html`.
 const files = [...Deno.readDirSync(usfmDir)]
-	.filter((f) => f.name.includes("GEN"))
 	.sort((f, f2) => f.name.localeCompare(f2.name));
 
 for (const f of files) {
@@ -65,50 +78,39 @@ for (const f of files) {
 
 	const title = ast.find((n) => "tag" in n && n.tag == "h1") as TextNode;
 	const id = ast.find((n) => "book" in n);
+	const lastChapter = ast.findLast((n) => "chapter" in n);
 	if (!id) throw Error("USFM file missing id: " + f.name);
 	if (!title) throw Error("USFM file missing title: " + f.name);
+	if (!lastChapter) throw Error("USFM file missing chapters: " + f.name);
 
 	const dir = path.join("dist", id.book.toLowerCase());
 	Deno.mkdirSync(dir, { recursive: true });
 
 	let bookHtml = "";
+	const titleHtml = writeAst(id.book, "000", [title]);
 	let chapter: Ast = [];
-	let maxChapter = 1;
+	let chapterN = -1;
 
 	for (let i = 0; i < ast.length; i++) {
 		const n = ast[i];
-		const isNextChapter = "chapter" in n && n.chapter > 1;
+		const isNextChapter = "chapter" in n && n.chapter > chapterN;
 
 		if (!isNextChapter) chapter.push(n);
 
 		if (i == ast.length - 1 || isNextChapter) {
-			console.log(i, chapter);
-			const chapterN = chapter.find((n) => "chapter" in n)!.chapter;
-			if (chapterN > maxChapter) maxChapter = chapterN;
-
 			const chapFmt = chapterN.toString().padStart(3, "0");
 			const fname = path.join(dir, `${chapFmt}.html`);
 			let chapterHtml = writeAst(id.book, chapFmt, chapter);
-			bookHtml += chapterHtml;
 
-			chapterHtml += `<div class="lrNav">
-<div>
-${
-				chapterN > 1
-					? `<a href="${(chapterN - 1).toString().padStart(3, "0")}.html">←</a>`
-					: ""
-			}
-</div>
-<div>
-${
-				chapterN < publication.toc[id.book.toLowerCase()].nChapters
-					? `<a href="${(chapterN + 1).toString().padStart(3, "0")}.html">→</a>`
-					: ""
-			}
-</div>
-</div>`;
+			bookHtml += chapterHtml;
+			chapterHtml = titleHtml + chapterHtml +
+				chapterNav(chapterN, lastChapter.chapter);
 
 			writePage(fname, `${title.text} ${chapterN}`, chapterHtml);
+		}
+
+		if (isNextChapter) {
+			chapterN = n.chapter;
 			chapter = [n];
 		}
 	}
@@ -124,7 +126,7 @@ ${
 					<li>
 						<a href="all.html">All</a>
 					</li>
-					{[...Array(maxChapter).keys()].map((i) => i + 1).map((c) => (
+					{[...Array(chapterN).keys()].map((i) => i + 1).map((c) => (
 						<li>
 							<a href={`${c.toString().padStart(3, "0")}.html`}>{c}</a>
 						</li>

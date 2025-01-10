@@ -2,6 +2,7 @@
   "version": "4",
   "specifiers": {
     "jsr:@openbible/bconv@0.1.11": "0.1.11",
+    "jsr:@openbible/core@0.1.22": "0.1.22",
     "jsr:@std/bytes@^1.0.2": "1.0.2",
     "jsr:@std/cli@*": "1.0.6",
     "jsr:@std/cli@^1.0.6": "1.0.6",
@@ -21,6 +22,9 @@
       "dependencies": [
         "npm:chalk"
       ]
+    },
+    "@openbible/core@0.1.22": {
+      "integrity": "a842d2b43c735eb7c7e98e1e4eb1bf8f18bb235cc445dc2b1db5f15dc1e88414"
     },
     "@std/bytes@1.0.2": {
       "integrity": "fbdee322bbd8c599a6af186a1603b3355e59a5fb1baa139f8f4c3c9a1b3e3d57"

@@ -26,7 +26,9 @@ export default function Page(
 						))}
 					</ul>
 				</nav>
-				{props.children}
+				<article>
+					{props.children}
+				</article>
 			</body>
 		</html>
 	);
