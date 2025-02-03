@@ -1,13 +1,16 @@
 {
 	"imports": {
 		"@openbible/bconv": "jsr:@openbible/bconv@0.1.11",
-		"@openbible/core": "jsr:@openbible/core@0.1.22",
+		"@openbible/core": "jsr:@openbible/core@^0.1.24",
 		"@std/cli": "jsr:@std/cli@^1.0.6",
 		"@std/fs": "jsr:@std/fs@^1.0.4",
 		"@std/io": "jsr:@std/io@^0.225.0",
 		"@std/path": "jsr:@std/path@^1.0.6",
+		"commander": "npm:commander@^13.1.0",
+		"exceljs": "npm:exceljs@^4.4.0",
 		"preact": "npm:preact@^10.24.3",
-		"preact-render-to-string": "npm:preact-render-to-string@^6.5.11"
+		"preact-render-to-string": "npm:preact-render-to-string@^6.5.11",
+		"usfm-js": "npm:usfm-js@^3.4.3"
 	},
 	"fmt": {
 		"useTabs": true,

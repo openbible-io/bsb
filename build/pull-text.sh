@@ -4,5 +4,5 @@ set -e
 
 curl https://bereanbible.com/bsb_tables.xlsx > bsb/bsb_tables.xlsx
 curl https://bereanbible.com/bsb_usfm.zip > bsb_usfm.zip
-7z x -aoa bsb_usfm.zip -obsb
+7z x -aoa bsb_usfm.zip -obsb2
 rm bsb_usfm.zip

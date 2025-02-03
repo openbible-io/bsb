@@ -1,13 +1,10 @@
-import type { books } from "@openbible/core";
+// Downloads per-chapter mp3 files to `outdir`.
+import type { BookId, Publication } from "@openbible/core";
 import { copy, readerFromStreamReader } from "@std/io";
 import { dirname, join } from "node:path";
-import pub, { audio } from "../bsb/index.ts";
-import { parseArgs } from "jsr:@std/cli/parse-args";
+import { outdir } from "./config.ts";
 
-type Version = keyof typeof audio;
-const outdir = "dist";
 const dateRe = /\d{4}-\d{2}-\d{2}/g;
-let exitCode = 1;
 
 function padStart(n: number, width: number) {
 	return n.toString().padStart(width, "0");
@@ -20,28 +17,33 @@ function titleCase(s: string) {
 	return s[0].toUpperCase() + s.substring(1);
 }
 
-const mirrors = {
+export const mirrors = {
 	"https://openbible.com": (
-		v: Version,
-		book?: books.Book,
+		pub: Publication,
+		version: string,
+		book?: BookId,
 		chapter?: number,
 	) => {
-		let res = `/audio/${v}`;
+		let res = `/audio/${version}`;
 		if (!book) return res;
 
 		res += "/BSB_";
-		const i = Object.keys(pub.toc).indexOf(book);
+		const i = Object.keys(pub.books).indexOf(book);
 		if (book == "tit") book = "tts" as "tit";
 		if (!chapter) return res;
 		res += `${padStart(i + 1, 2)}_${titleCase(book)}_${padStart(chapter, 3)}`;
-		if (v != "souer") res += `_${v[0].toUpperCase()}`;
+		if (version != "souer") res += `_${version[0].toUpperCase()}`;
 		res += ".mp3";
 		return res;
 	},
-	// Reencoded and slightly smaller filesizes.
-	// Currently missing `gilbert`
-	"https://tim.z73.com": (v: Version, book?: books.Book, chapter?: number) => {
-		let res = `/${v}/audio`;
+	// Re-encoded for slightly smaller filesizes. Missing `gilbert`.
+	"https://tim.z73.com": (
+		_pub: Publication,
+		version: string,
+		book?: BookId,
+		chapter?: number,
+	) => {
+		let res = `/${version}/audio`;
 		if (!book) return res;
 
 		res += `/${titleCase(book)}`;
@@ -52,13 +54,14 @@ const mirrors = {
 	},
 } as const;
 
-async function download(
+async function downloadVersion(
+	pub: Publication,
 	mirror: keyof typeof mirrors,
-	version: Version,
+	version: string,
 	since?: string,
 ) {
-	// if there's a since new version, will redownload ALL
-	const url = mirror + mirrors[mirror](version);
+	// if there's a new version, will redownload ALL
+	const url = mirror + mirrors[mirror](pub, version);
 	const resp = await fetch(url);
 	if (!resp.ok) throw Error(`${resp.status} downloading ${url}`);
 	const text = await resp.text();
@@ -69,12 +72,21 @@ async function download(
 	console.log(url, "last updated", lastUpdated);
 	if (since && lastUpdated < since) return;
 
-	for (const e of Object.entries(pub.toc)) {
-		const [book, { nChapters }] = e;
+	for (const e of Object.entries(pub.books)) {
+		const [book, { data }] = e;
+		const nChapters = data?.ast
+			.findLast((n) => typeof n == "object" && ("chapter" in n))
+			?.chapter;
+
+		if (!nChapters) {
+			console.warn("skipping", book, "due to unknown number of chapters");
+			continue;
+		}
+
 		for (let i = 0; i < nChapters; i++) {
 			const chapter = i + 1;
 			const url = mirror +
-				mirrors[mirror](version as "souer", book as books.Book, chapter);
+				mirrors[mirror](version, book as BookId, chapter);
 			const fname = join(outdir, version, book, `${padStart(chapter, 3)}.mp3`);
 			console.log(url, "->", fname);
 
@@ -90,44 +102,13 @@ async function download(
 			const mtime = new Date(lastUpdated);
 			Deno.utimeSync(fname, mtime, mtime);
 			f.close();
-			exitCode = 0;
 		}
 	}
 }
 
-const flags = parseArgs(Deno.args, {
-	string: ["mirror", "since"],
-	default: {
-		mirror: "https://openbible.com",
-	},
-});
-
-if (flags.since && !flags.since.match(dateRe)) {
-	throw Error(`Expected ${flags.since} to match date format ${dateRe}`);
+export async function download(
+	pub: Publication,
+	mirror: keyof typeof mirrors,
+	since?: string,
+) {
 }
-
-const versions = flags._.filter(Boolean);
-console.log("downloading", versions, "since", flags.since);
-
-for (const version of versions) {
-	if (!(version in audio)) {
-		throw Error(
-			`Expected "${version ?? ""}" to be in ${Object.keys(audio).join(", ")}`,
-		);
-	}
-	if (!(flags.mirror in mirrors)) {
-		throw Error(
-			`Expected "${flags.mirror ?? ""}" to be in ${
-				Object.keys(mirrors).join(", ")
-			}`,
-		);
-	}
-
-	await download(
-		flags.mirror as keyof typeof mirrors,
-		version as Version,
-		flags.since,
-	);
-}
-console.log("downloaded audio");
-Deno.exit(exitCode);
