@@ -16,7 +16,7 @@ const frt: Ast = [
 	{ paragraph: "" },
 	"The Scriptures belonged to the churches and were meant to be examined, copied, and distributed. The committee hopes to follow this example by sharing all the resources with which we have been entrusted.",
 	{ paragraph: "" },
-	"Just as Paul encouraged the churches to pass on his letters, the Berean Bible is intended to be offered freely in websites, apps, software, and various text and audio formats."
+	"Just as Paul encouraged the churches to pass on his letters, the Berean Bible is intended to be offered freely in websites, apps, software, and various text and audio formats.",
 ];
 
 export default frt;

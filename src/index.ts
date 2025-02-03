@@ -1,5 +1,5 @@
 import type { Publication } from "@openbible/core";
-import frt from './frt.ts';
+import frt from "./frt.ts";
 import books from "./generated/books.ts";
 import souerBooks from "./generated/audio/souer.ts";
 import haysBooks from "./generated/audio/hays.ts";

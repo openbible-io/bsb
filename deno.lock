@@ -2,25 +2,17 @@
   "version": "4",
   "specifiers": {
     "jsr:@deno-library/progress@^1.5.1": "1.5.1",
-    "jsr:@openbible/bconv@0.1.11": "0.1.11",
+    "jsr:@openbible/bconv@*": "0.1.26",
     "jsr:@openbible/core@~0.1.24": "0.1.24",
     "jsr:@std/bytes@^1.0.2": "1.0.2",
-    "jsr:@std/cli@*": "1.0.6",
-    "jsr:@std/cli@^1.0.6": "1.0.6",
     "jsr:@std/fmt@1.0.3": "1.0.3",
-    "jsr:@std/fs@^1.0.4": "1.0.8",
     "jsr:@std/io@0.225": "0.225.0",
     "jsr:@std/io@0.225.0": "0.225.0",
-    "jsr:@std/path@^1.0.6": "1.0.8",
     "jsr:@std/path@^1.0.7": "1.0.7",
-    "jsr:@std/path@^1.0.8": "1.0.8",
     "npm:@types/node@*": "22.5.4",
     "npm:chalk@^5.3.0": "5.4.1",
     "npm:commander@^13.1.0": "13.1.0",
-    "npm:exceljs@^4.4.0": "4.4.0",
-    "npm:preact-render-to-string@^6.5.11": "6.5.11_preact@10.24.3",
-    "npm:preact@^10.24.3": "10.24.3",
-    "npm:usfm-js@^3.4.3": "3.4.3"
+    "npm:exceljs@^4.4.0": "4.4.0"
   },
   "jsr": {
     "@deno-library/progress@1.5.1": {
@@ -30,8 +22,8 @@
         "jsr:@std/io@0.225.0"
       ]
     },
-    "@openbible/bconv@0.1.11": {
-      "integrity": "b1cbe27e9f3ebe1da0828c763ef72e5fa174b60833bf70b8ed0afaaa9bcc65e3",
+    "@openbible/bconv@0.1.26": {
+      "integrity": "765635ce18e64b4139a3753c02a025ea7582385a80399bce7378c5d7a11baf27",
       "dependencies": [
         "npm:chalk"
       ]
@@ -45,22 +37,13 @@
     "@std/bytes@1.0.2": {
       "integrity": "fbdee322bbd8c599a6af186a1603b3355e59a5fb1baa139f8f4c3c9a1b3e3d57"
     },
-    "@std/cli@1.0.6": {
-      "integrity": "d22d8b38c66c666d7ad1f2a66c5b122da1704f985d3c47f01129f05abb6c5d3d"
-    },
     "@std/fmt@1.0.3": {
       "integrity": "97765c16aa32245ff4e2204ecf7d8562496a3cb8592340a80e7e554e0bb9149f"
     },
     "@std/fs@1.0.5": {
       "integrity": "41806ad6823d0b5f275f9849a2640d87e4ef67c51ee1b8fb02426f55e02fd44e",
       "dependencies": [
-        "jsr:@std/path@^1.0.7"
-      ]
-    },
-    "@std/fs@1.0.8": {
-      "integrity": "161c721b6f9400b8100a851b6f4061431c538b204bb76c501d02c508995cffe0",
-      "dependencies": [
-        "jsr:@std/path@^1.0.8"
+        "jsr:@std/path"
       ]
     },
     "@std/io@0.225.0": {
@@ -71,9 +54,6 @@
     },
     "@std/path@1.0.7": {
       "integrity": "76a689e07f0e15dcc6002ec39d0866797e7156629212b28f27179b8a5c3b33a1"
-    },
-    "@std/path@1.0.8": {
-      "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
     }
   },
   "npm": {
@@ -355,9 +335,6 @@
     "listenercount@1.0.1": {
       "integrity": "sha512-3mk/Zag0+IJxeDrxSgaDPy4zZ3w05PRZeJNnlWhzFz5OkX49J4krc+A8X2d2M69vGMBEX0uyl8M+W+8gH+kBqQ=="
     },
-    "lodash.clonedeep@4.5.0": {
-      "integrity": "sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ=="
-    },
     "lodash.defaults@4.2.0": {
       "integrity": "sha512-qjxPLHd3r5DnsdGacqOMU6pb/avJzdh9tFX2ymgoZE27BmjXrNy/y4LoaiTeAb+O3gL8AfpJGtqfX/ae2leYYQ=="
     },
@@ -432,15 +409,6 @@
     },
     "path-is-absolute@1.0.1": {
       "integrity": "sha512-AVbw3UJ2e9bq64vSaS9Am0fje1Pa8pbGqTTsmXfaIiMpnr5DlDhfJOuLj9Sf95ZPVDAUerDfEk88MPmPe7UCQg=="
-    },
-    "preact-render-to-string@6.5.11_preact@10.24.3": {
-      "integrity": "sha512-ubnauqoGczeGISiOh6RjX0/cdaF8v/oDXIjO85XALCQjwQP+SB4RDXXtvZ6yTYSjG+PC1QRP2AhPgCEsM2EvUw==",
-      "dependencies": [
-        "preact"
-      ]
-    },
-    "preact@10.24.3": {
-      "integrity": "sha512-Z2dPnBnMUfyQfSQ+GBdsGa16hz35YmLmtTLhM169uW944hYL6xzTYkJjC07j+Wosz733pMWx0fgON3JNw1jJQA=="
     },
     "process-nextick-args@2.0.1": {
       "integrity": "sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag=="
@@ -538,12 +506,6 @@
         "setimmediate"
       ]
     },
-    "usfm-js@3.4.3": {
-      "integrity": "sha512-c5d2dzmSnEfFSPfMXnnycIPwdw8ryBsb2r2CUEwiXpsUMm+gDmhFz5GGOufYP5rGGVwAssHdSM8oOkcaHz+Hwg==",
-      "dependencies": [
-        "lodash.clonedeep"
-      ]
-    },
     "util-deprecate@1.0.2": {
       "integrity": "sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw=="
     },
@@ -567,17 +529,10 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@openbible/bconv@0.1.11",
+      "jsr:@openbible/bconv@*",
       "jsr:@openbible/core@~0.1.24",
-      "jsr:@std/cli@^1.0.6",
-      "jsr:@std/fs@^1.0.4",
-      "jsr:@std/io@0.225",
-      "jsr:@std/path@^1.0.6",
       "npm:commander@^13.1.0",
-      "npm:exceljs@^4.4.0",
-      "npm:preact-render-to-string@^6.5.11",
-      "npm:preact@^10.24.3",
-      "npm:usfm-js@^3.4.3"
+      "npm:exceljs@^4.4.0"
     ]
   }
 }

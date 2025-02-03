@@ -1,8 +1,9 @@
 // Downloads text to `bsb.csv` and audio to `dist/audio`.
-import { Book, BookId, downloadFile } from "@openbible/core";
+import { downloadFile } from "@openbible/core";
 import { Command, Option } from "commander";
-import { mirrors } from "./audio.ts";
+//import { mirrors } from "./audio.ts";
 import { join } from "node:path";
+import { parseSpreadsheet } from "../src/parseSpreadsheet.ts";
 
 const program = new Command();
 
@@ -16,37 +17,43 @@ program.command("text")
 		await Deno.mkdir(downloadDir, { recursive: true });
 		const path = join(downloadDir, fname);
 		await downloadFile(`https://bereanbible.com/${fname}`, path);
-		const books: { [book in BookId]: Book } = await parseSpreadsheet(path);
+		const books = await parseSpreadsheet(path);
 
+		await Deno.mkdir(genDir, { recursive: true });
 		Object.entries(books).forEach(([id, { data }]) => {
 			const path = join(genDir, id + ".ts");
-			Deno.writeTextFileSync(path, `export default ${JSON.stringify(data)};`);
+			Deno.writeTextFileSync(
+				path,
+				`export default ${JSON.stringify(data, null, 2)};`,
+			);
 		});
 
 		const indexPath = join(genDir, "index.ts");
 		Deno.writeTextFileSync(
 			indexPath,
-			Object.keys(books).map((id) => `import ${id} from "./${id}.ts";`).join(
-				"",
+			Object.keys(books).map((id, i) => `import imp${i} from "./${id}.ts";`).join(
+				"\n",
 			),
 		);
 		Deno.writeTextFileSync(
 			indexPath,
-			`export default { ${Object.keys(books).join(',')} }`,
-			{ append: true }
+			`\nexport default {\n${
+				Object.keys(books).map((b, i) => `"${b}": imp${i}`).join(",\n")
+			}\n};`,
+			{ append: true },
 		);
 	});
 
-program.command("audio")
-	.description("download and re-encode latest audio")
-	.option("-s, --since <date>", "download if changed after this date")
-	.addOption(
-		new Option("-m, --mirror <string>", "apache server mirror").choices(
-			Object.keys(mirrors),
-		).default(Object.keys(mirrors)[0]),
-	)
-	.action((str, opts) => {
-		console.log(str, opts);
-	});
-
+//program.command("audio")
+//	.description("download and re-encode latest audio")
+//	.option("-s, --since <date>", "download if changed after this date")
+//	.addOption(
+//		new Option("-m, --mirror <string>", "apache server mirror").choices(
+//			Object.keys(mirrors),
+//		).default(Object.keys(mirrors)[0]),
+//	)
+//	.action((str, opts) => {
+//		console.log(str, opts);
+//	});
+//
 program.parse();
