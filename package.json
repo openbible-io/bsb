@@ -1,0 +1,14 @@
+{
+	"name": "@nerd-bible/bsb",
+	"type": "module",
+	"scripts": {
+		"download": "node ./src/download.ts"
+	},
+	"devDependencies": {
+		"@nerd-bible/ref": "^0.1.2",
+		"@nerd-bible/schema": "file:../schema",
+		"@nerd-bible/valio": "^0.1.7",
+		"@types/node": "^25.1.0",
+		"node-av": "^5.2.2"
+	}
+}

@@ -1,9 +1,7 @@
 import type { Publication } from "@openbible/core";
 import frt from "./frt.ts";
-import books from "./generated/books.ts";
-import souerBooks from "./generated/audio/souer.ts";
-import haysBooks from "./generated/audio/hays.ts";
-import gilbertBooks from "./generated/audio/gilbert.ts";
+import books from "./generated/index.ts";
+//import haysBooks from "./generated/audio/hays.ts";
 
 const pub: Publication = {
 	id: "BSB",
@@ -84,19 +82,6 @@ const pub: Publication = {
 	},
 	books: { frt, ...books },
 	audio: {
-		souer: {
-			downloadUrl: "https://openbible.com/audio/souer/",
-			license: { spdx: "CC0-1.0" },
-			authors: [{
-				name: "Bob Souer",
-				url: "https://bobsouer.com/",
-			}],
-			publisher: "Bible Hub",
-			publisherUrl: "https://biblehub.com/",
-			publishDate: "2023-08-25",
-			url: "/audio/souer/%b/%c.webm",
-			books: souerBooks,
-		},
 		hays: {
 			downloadUrl: "https://openbible.com/audio/hays/",
 			license: { spdx: "CC0-1.0" },
@@ -108,20 +93,8 @@ const pub: Publication = {
 			publisherUrl: "https://biblehub.com/",
 			publishDate: "2022-10-07",
 			url: "/audio/hays/%b/%c.webm",
-			books: haysBooks,
-		},
-		gilbert: {
-			downloadUrl: "https://openbible.com/audio/gilbert/",
-			license: { spdx: "CC0-1.0" },
-			authors: [{
-				name: "Jordan Gilbert",
-				url: "https://jordanscottgilbert.com/",
-			}],
-			publisher: "Bible Hub",
-			publisherUrl: "https://biblehub.com/",
-			publishDate: "2022-09-24",
-			url: "/audio/gilbert/%b/%c.webm",
-			books: gilbertBooks,
+			books: {},
+			//books: haysBooks,
 		},
 	},
 };
