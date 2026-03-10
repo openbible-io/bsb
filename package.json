@@ -5,6 +5,7 @@
 		"download": "node ./src/download.ts"
 	},
 	"devDependencies": {
+		"@nerd-bible/config": "^0.1.6",
 		"@nerd-bible/ref": "^0.1.2",
 		"@nerd-bible/schema": "file:../schema",
 		"@nerd-bible/valio": "^0.1.7",
