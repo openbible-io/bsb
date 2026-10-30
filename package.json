@@ -2,14 +2,16 @@
 	"name": "@nerd-bible/bsb",
 	"type": "module",
 	"scripts": {
-		"download": "node ./src/download.ts"
+		"download": "node ./src/download.ts",
+		"build": "node ./src/text/index.ts"
 	},
 	"devDependencies": {
-		"@nerd-bible/config": "^0.1.6",
-		"@nerd-bible/ref": "^0.1.2",
+		"@nerd-bible/config": "^0.3.1",
+		"@nerd-bible/ref": "^0.2.2",
 		"@nerd-bible/schema": "file:../schema",
-		"@nerd-bible/valio": "^0.1.7",
-		"@types/node": "^25.1.0",
-		"node-av": "^5.2.2"
-	}
+		"@types/node": "^26.6.6",
+		"canonicalize": "^5.1.0",
+		"wordgard": "npm:@nerd-bible/wordgard@^0.6.2-beta3"
+	},
+	"prettier": "@nerd-bible/config/prettier"
 }

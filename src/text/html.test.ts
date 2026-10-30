@@ -1,0 +1,3 @@
+// console.log(
+// wordsAndTags(`Hebrew; LXX (see also Luke 3:35–36) <i><span class=|fnv|>12</span>When Arphaxad was 135 years old, he became the father of Cainan. <span class=|fnv|>13</span>And after he had become the father of Cainan, Arphaxad lived 430 years and had other sons and daughters, and then he died. When Cainan had lived 130 years, he became the father of Shelah. And after he had become the father of Shelah, Cainan lived 330 years and had other sons and daughters.</i> Note that LXX also adds 100 years to the ages of Shelah, Eber, Peleg, Reu, Serug, and Nahor in this genealogy.
+// `))
