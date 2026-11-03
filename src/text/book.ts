@@ -9,7 +9,7 @@ import {
 import type { Row, SourceRow, TranslationRow } from "./verse.ts";
 import { pushVerse } from "./verse.ts";
 import { GardState } from "wordgard/state";
-import { Leaf } from "wordgard/doc";
+import { Leaf, Plot } from "wordgard/doc";
 
 export const shortcode = "bsb";
 const published = new Date(2024, 11, 17);
@@ -17,7 +17,24 @@ const published = new Date(2024, 11, 17);
 const newId = () => crypto.randomUUID();
 
 function pushHeading(b: Builder, level: number, text: string) {
-	b.push([schemaBook.Heading.of(level).create([Leaf.text(text)])]);
+	// console.log("pushHeading", level, text);
+	const heading = schemaBook.Heading.of(level).create([Leaf.text(text)]);
+	b.insert(Plot.End, heading);
+}
+
+function startChapter(b: Builder, vnum: Plot) {
+	// remove empty paragraph but carry its styles to next chapter
+	let claz = "";
+	const chapterNum = b.state.sel.replacementRange.from;
+	const para = chapterNum.parent.previousSibling;
+	if (para?.type.name == schemaBook.Paragraph.name && para.length == 2) {
+		claz = para.tag.param as string;
+		const from = chapterNum.parent.start - 3;
+		const to = from + 2;
+		b.state = b.state.update({ changes: { from, to } }).state;
+	}
+	const ele = schemaBook.Paragraph.of(claz).create([vnum]);
+	b.insert(Plot.End, ele);
 }
 
 const createDoc = (
@@ -37,7 +54,7 @@ const createDoc = (
 		},
 	);
 	res.xrefs["source"] = new Builder(
-		schemaNote.schema.map((s) => GardState.schemaElement.of(s)),
+		schemaBook.schema.map((s) => GardState.schemaElement.of(s)),
 		{
 			type: "book",
 			id: newId(),
@@ -51,12 +68,15 @@ const createDoc = (
 		{
 			type: "note",
 			id: newId(),
+			title: "Translator's Notes",
 			lang,
 			published,
 		},
 	);
-	pushHeading(res, 1, title);
-	pushHeading(res.xrefs["source"], 1, title);
+	if (title) {
+		pushHeading(res, 1, title);
+		pushHeading(res.xrefs["source"], 1, title);
+	}
 	return res;
 };
 
@@ -66,8 +86,19 @@ export async function* books(file: FileHandle): AsyncGenerator<Builder> {
 	let builder = createDoc("", "", "", "");
 
 	let verseRows: Row[] = [];
-	function flushVerse(bcv: Bcv) {
-		// pushVerse(bcv, verseRows, builder);
+	function flushVerse(bcv: Bcv, diffChapter: boolean) {
+		// console.log("flushVerse", bcv, diffChapter);
+		const vnum = schemaBook.VerseNum.create([
+			Leaf.text(" " + bcv.verse.toString() + " "),
+		]);
+		if (diffChapter) {
+			startChapter(builder, vnum);
+			startChapter(builder.xrefs["source"], vnum);
+		} else {
+			builder.insert(vnum);
+			builder.xrefs["source"].insert(vnum);
+		}
+		pushVerse(bcv, verseRows, builder);
 		verseRows = [];
 	}
 
@@ -119,7 +150,7 @@ export async function* books(file: FileHandle): AsyncGenerator<Builder> {
 			const diffVerse = newBcv.verse !== prevBcv?.verse;
 
 			if (prevBcv && (diffBook || diffChapter || diffVerse))
-				flushVerse(prevBcv);
+				flushVerse(prevBcv, prevBcv.verse == 1);
 
 			if (diffBook) {
 				if (!builder.isEmpty()) yield builder;
@@ -185,7 +216,7 @@ export async function* books(file: FileHandle): AsyncGenerator<Builder> {
 	}
 
 	if (prevBcv) {
-		flushVerse(prevBcv);
+		flushVerse(prevBcv, false);
 		if (!builder.isEmpty()) yield builder;
 	}
 }

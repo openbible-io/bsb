@@ -1,8 +1,8 @@
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { open } from "node:fs/promises";
 import { downloadDir, fname } from "../download.ts";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { books, shortcode } from "./book.ts";
+import { books } from "./book.ts";
 import canonicalize from "canonicalize";
 import type { Doc, meta, SourceMap } from "@nerd-bible/schema";
 
@@ -10,27 +10,27 @@ const tsvPath = join(downloadDir, fname);
 const file = await open(tsvPath);
 
 for await (const b of books(file)) {
-	writeFs(b.finish());
+	writeFs((b.meta as meta.Book).book, b.finish());
+	break;
 }
 
 function getDocName(meta: meta.Meta) {
 	switch (meta.type) {
 		case "book":
-			return meta.book + ".nb";
+			return meta.lang;
 		case "note":
-			return meta.title + ".nb";
+			return "note";
 	}
 }
 
-function writeFs(docs: (Doc | SourceMap)[]) {
-	const dir = "dist";
-	mkdirSync(dir, { recursive: true });
+function writeFs(book: string, docs: (Doc | SourceMap)[]) {
+	const dir = join("dist", book);
 
 	for (const d of docs) {
 		let fname;
 		switch (d.type) {
 			case "doc":
-				fname = getDocName(d.meta);
+				fname = getDocName(d.meta) + ".nb";
 				break;
 			case "sourcemap":
 				const target = docs.find(
@@ -40,10 +40,13 @@ function writeFs(docs: (Doc | SourceMap)[]) {
 					console.error("sourcemap has invalid target", d.target);
 					continue;
 				}
-				fname = getDocName(target.meta);
+				fname = getDocName(target.meta) + ".map";
 				break;
 		}
 
-		writeFileSync(join(dir, fname), canonicalize(d) as string);
+		const path = join(dir, fname);
+		mkdirSync(dirname(path), { recursive: true });
+		writeFileSync(path, canonicalize(d) as string);
+		console.log(path);
 	}
 }

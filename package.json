@@ -3,14 +3,17 @@
 	"type": "module",
 	"scripts": {
 		"download": "node ./src/download.ts",
-		"build": "node ./src/text/index.ts"
+		"build": "node ./src/text/index.ts",
+		"preview": "vite"
 	},
 	"devDependencies": {
 		"@nerd-bible/config": "^0.3.1",
+		"@nerd-bible/fonts": "^0.1.0",
 		"@nerd-bible/ref": "^0.2.2",
 		"@nerd-bible/schema": "file:../schema",
 		"@types/node": "^26.6.6",
 		"canonicalize": "^5.1.0",
+		"vite": "^8.3.5",
 		"wordgard": "npm:@nerd-bible/wordgard@^0.6.2-beta3"
 	},
 	"prettier": "@nerd-bible/config/prettier"

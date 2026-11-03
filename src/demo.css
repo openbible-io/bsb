@@ -1,0 +1,5 @@
+@import "@nerd-bible/fonts/dist/faces.css";
+
+body {
+	font-family: "Noto Sans", "Noto Sans Hebrew";
+}
