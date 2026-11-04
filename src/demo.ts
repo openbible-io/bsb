@@ -7,7 +7,7 @@ import {
 } from "@nerd-bible/schema";
 import { GardState } from "wordgard/state";
 
-import idk from "../dist/gen/hbo.nb?raw";
+import idk from "../dist/gen/eng.nb?raw";
 
 const doc: Doc = JSON.parse(idk);
 const parent = document.getElementById("editor")!;

@@ -73,7 +73,12 @@ export async function* books(file: FileHandle): AsyncGenerator<Builder> {
 	let verseRows: Row[] = [];
 	function flushVerse(bcv: Bcv) {
 		// console.log("flushVerse", bcv, diffChapter);
-		pushVerse(bcv, verseRows, builder);
+		try {
+			pushVerse(bcv, verseRows, builder);
+		} catch (err) {
+			console.error(bcv, verseRows);
+			throw err;
+		}
 		verseRows = [];
 	}
 
@@ -104,7 +109,7 @@ export async function* books(file: FileHandle): AsyncGenerator<Builder> {
 			after2,
 			footnotes,
 			after3,
-		] = line.split("\t");
+		] = line.split("\t").map((s) => s.trim());
 
 		const sourcePos = parseFloat(hebSort) + parseFloat(greekSort);
 		if (!Number.isFinite(sourcePos)) {
@@ -166,18 +171,13 @@ export async function* books(file: FileHandle): AsyncGenerator<Builder> {
 				text: sourceText,
 				lang,
 				parsing: parsing.replace(/\s+/g, ""),
-				strongs: strongHeb.trim() || strongGrk.trim(),
+				strongs: strongHeb || strongGrk,
 			};
 		}
-		const joined =
-			before.trim() +
-			text.trim() +
-			after.trim() +
-			after2.trim() +
-			after3.trim();
-		if (joined) {
+		const joined = before + text + after + after2 + after3;
+		if (heading || paraFmt || joined) {
 			translationRow = {
-				html: heading.trim() + paraFmt.trim() + joined,
+				html: heading + paraFmt + joined,
 				footnotesHtml: footnotes,
 			};
 		}
