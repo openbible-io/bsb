@@ -10,6 +10,7 @@ export function parseLang(lang: string): Lang {
 	throw new Error(`unknown language ${lang}`);
 }
 
+// undefined attrs = closing tag
 export type Tag = { tag: string; attrs?: Record<string, string> };
 export function wordsAndTags(str: string): (string | Tag)[] {
 	let res: ReturnType<typeof wordsAndTags> = [];

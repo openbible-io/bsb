@@ -11,7 +11,6 @@ const file = await open(tsvPath);
 
 for await (const b of books(file)) {
 	writeFs((b.meta as meta.Book).book, b.finish());
-	break;
 }
 
 function getDocName(meta: meta.Meta) {

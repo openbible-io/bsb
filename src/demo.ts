@@ -24,7 +24,7 @@ const wg = Wordgard.create({
 		GardState.textLTR.of(ltr),
 		Wordgard.styles({
 			"span.whitespace.ס": {
-				"&::before": {content: "'        '" },
+				"&::before": { content: "'        '" },
 			},
 		}),
 	],

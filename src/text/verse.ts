@@ -27,37 +27,47 @@ export type Row = { order: number } & (
 const bhsBlockSigils = /(\p{P})([פס])$/u;
 // TODO: figure out what these are
 const na28Sigils = /[¦‿]/g;
+const wordTokenizer = /[{}\[\]]|. . .|[\w- ]+/g;
+
+// Things that stretch between verses. We assume `pushVerse` is called in flow.
+let smoothingLevel = 0;
+let paraClass = "פ";
+let prevWasWordJoiner = false;
+
+export function pushHeading(b: Builder, level: number, text: string) {
+	// console.log("pushHeading", level, text);
+	const heading = schemaBook.Heading.of(level).create([Leaf.text(text)]);
+	b.insert(Plot.End, heading);
+}
 
 function insertSourceToken(
 	b: Builder,
 	text: string,
-	prevWasWordJoiner: boolean,
-	bcv: Bcv,
 ): { start: number; length: number } {
 	text = text.trim().replace(na28Sigils, "");
 	if (!prevWasWordJoiner) b.insert(" ");
 
-	const start = b.state.doc.length;
 	let whitespaceSigil;
 	text = text.replace(bhsBlockSigils, (_, m1, m2) => {
 		whitespaceSigil = m2;
 		return m1;
 	});
-	if (whitespaceSigil == "פ") {
-		const leaf = Leaf.text(text);
-		b.insert(leaf, Plot.End, schemaBook.Paragraph.of(whitespaceSigil));
-	} else if (whitespaceSigil == "ס") {
+
+	const start = b.state.doc.length;
+	b.insert(text);
+	prevWasWordJoiner = text.endsWith("־");
+
+	if (whitespaceSigil == "פ") paraClass = whitespaceSigil;
+	else if (whitespaceSigil == "ס")
 		b.insert(schemaBook.Whitespace.of(whitespaceSigil));
-	} else {
-		b.insert(text);
-	}
 
 	return { start, length: text.length };
 }
 
-let translationContainer = "";
-
 export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
+	const vnum = schemaBook.VerseNum.create([
+		Leaf.text(" " + bcv.verse.toString() + " "),
+	]);
 	// Source
 	const sourceMap = [];
 	{
@@ -66,7 +76,12 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 			(a, b) => rows[a].order - rows[b].order,
 		);
 
-		let prevWasWordJoiner = false;
+		if (paraClass || bcv.verse == 1) {
+			source.insert(Plot.End, schemaBook.Paragraph.of(paraClass).create());
+			paraClass = "";
+		}
+		source.insert(vnum);
+
 		for (let i = 0; i < sourceIndices.length; i++) {
 			const sourceIndex = sourceIndices[i];
 			const row = rows[sourceIndex];
@@ -76,142 +91,127 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 				continue;
 			}
 
-			sourceMap[sourceIndex] = insertSourceToken(
-				source,
-				text,
-				prevWasWordJoiner,
-				bcv,
-			);
-			prevWasWordJoiner = text.endsWith("־");
+			sourceMap[sourceIndex] = insertSourceToken(source, text);
 		}
 	}
-	// Translation
-	// const doc = translation.document.id;
+	// Translation and notes
 	// for (let ti = 0; ti < rows.length; ti++) {
 	// 	const raw = rows[ti];
 	// 	if (!raw.translation) continue;
 	//
-	// 	translationContainer = "";
-	//
-	// 	// need sigil that isn't punctuation and is not in main text
-	// 	const html = raw.translation.html
-	// 		.replaceAll(". . .", "nnn")
-	// 		.replaceAll("...", "…");
-	// 	for (const wordOrTag of wordsAndTags(html)) {
-	// 		if ("text" in wordOrTag) {
-	// 			const word = wordOrTag;
-	// 			switch (word.text) {
-	// 				case "{":
-	// 					translationContainer = "smoothed"; // explicit smoothing (
-	// 					return;
-	// 				case "[":
-	// 					translationContainer = "added"; // implicit smoothing (coreference resolution)
-	// 					return;
-	// 				case "}":
-	// 				case "]":
-	// 					translationContainer = "";
-	// 					return;
-	// 				case "vvv": // next translated row captures this source word's meaning
-	// 					// 	text = "";
-	// 					// 	nextSourceIds.push(sourceWordId);
-	// 					return;
-	// 				case "nnn": // previous translated row captured this source word's meaning
-	// 					// 	text = "";
-	// 					// 	const prev = translation.words[translation.words.length - 1];
-	// 					// 	prev.misc["sourceWordId"] ??= "";
-	// 					// 	prev.misc["sourceWordId"] += `,${sourceWordId.toString()}`;
-	// 					return;
-	// 				case "-": // untranslated source word
-	// 					return;
+	// 	// need sigil that isn't punctuation and isn't in main text
+	// 	for (const wordOrTag of wordsAndTags(raw.translation.html)) {
+	// 		if (typeof wordOrTag == "string") {
+	// 			let match;
+	// 			while ((match = wordTokenizer.exec(wordOrTag))) {
+	// 				const token = match[0];
+	// 				switch (token) {
+	// 					case "{":
+	// 						smoothingLevel = 2; // explicit smoothing
+	// 						break;
+	// 					case "[":
+	// 						smoothingLevel = 1; // implicit smoothing (coreference resolution)
+	// 						break;
+	// 					case "}":
+	// 					case "]":
+	// 						smoothingLevel = 0;
+	// 						break;
+	// 					case "vvv": // next translated row captures this source word's meaning
+	// 						// 	nextSourceIds.push(sourceWordId);
+	// 						break;
+	// 					case ". . .": // previous translated row captured this source word's meaning
+	// 						// 	const prev = translation.words[translation.words.length - 1];
+	// 						// 	prev.misc["sourceWordId"] ??= "";
+	// 						// 	prev.misc["sourceWordId"] += `,${sourceWordId.toString()}`;
+	// 						break;
+	// 					case "-": // untranslated source word
+	// 						break;
+	// 					default:
+	// 						const marks = smoothingLevel
+	// 							? [schemaBook.Smoothed.of(smoothingLevel)]
+	// 							: [];
+	// 						builder.insert(Leaf.text(token, marks));
+	// 						break;
+	// 				}
 	// 			}
-	//
-	// 			if (/^\d+$/.test(word.text))
-	// 				translation.grammars.push({
-	// 					doc,
-	// 					word: translation.words.length,
-	// 					upos: "NUM",
-	// 				});
-	// 			translation.words.push({
-	// 				doc,
-	// 				id: translation.words.length,
-	// 				...wordOrTag,
-	// 			});
 	// 		} else {
-	// 			const tag = wordOrTag;
-	// 			switch (tag.tag) {
+	// 			const insertP = (claz: string) =>
+	// 				builder.insert(Plot.End, schemaBook.Paragraph.of(claz));
+	// 			switch (wordOrTag.tag) {
 	// 				case "p": {
-	// 					translation.endSpan("em");
-	// 					if (!tag.attrs) {
+	// 					if (!wordOrTag.attrs) {
 	// 						console.warn("ignoring closing p tag", bcv);
 	// 						return;
 	// 					}
-	//
-	// 					switch (tag.attrs["class"]) {
+	// 					switch (wordOrTag.attrs["class"]) {
 	// 						case "acrostic":
 	// 						case "indent1stline":
 	// 						case "tab1stline":
 	// 						case "indent1":
 	// 						case "tab1":
-	// 							translation.pushBlock("p", 1, { class: "ms-1" });
-	// 							break;
-	// 						case "red":
 	// 						case "indentred1":
 	// 						case "tab1stlinered":
 	// 						case "indent1stlinered":
-	// 							translation.pushBlock("p", 1, { class: "ms-1" });
-	// 							translation.startSpan({ tag: "q", cite: "jesus" });
+	// 							insertP("poetry");
+	// 							break;
+	// 						case "red":
 	// 							break;
 	// 						case "indent2":
 	// 						case "tab2":
-	// 							translation.pushBlock("p", 1, { class: "ms-2" });
+	// 							builder.insert(schemaBook.LineBreak);
 	// 							break;
 	// 						case "selah":
 	// 						case "inscrip": // SOMETHING IN CAPS
-	// 							return;
+	// 							break;
 	// 						case "suphdg": // psalm "BOOK I"
 	// 						case "pshdg": // for the choirmaster
 	// 						case "hdg":
-	// 							translation.pushBlock("h3", 1);
+	// 							builder.insert(Plot.End, schemaBook.Heading.of(3).create());
 	// 							break;
 	// 						case "ihdg":
-	// 							translation.pushBlock("h3", 1);
-	// 							translation.startSpan({ tag: "em" });
+	// 							builder.insert(
+	// 								Plot.End,
+	// 								schemaBook.Heading.of(3).create([
+	// 									Leaf.text("", [schemaBook.Emphasis]),
+	// 								]),
+	// 							);
 	// 							break;
 	// 						case "subhdg":
-	// 							translation.pushBlock("h4", 1);
+	// 							builder.insert(Plot.End, schemaBook.Heading.of(4).create());
 	// 							break;
 	// 						case "list1stline":
 	// 						case "list1":
 	// 						case "list2":
-	// 							// const lastName = translation.lastChild?.type.name;
-	// 							// if (lastName === "ol" || lastName === "ul")
-	// 							// 	return nodes.li.create();
-	// 							//
-	// 							// return nodes.ol.create(null, nodes.li.create());
+	// 						// const lastName = translation.lastChild?.type.name;
+	// 						// if (lastName === "ol" || lastName === "ul")
+	// 						// 	return nodes.li.create();
+	// 						//
+	// 						// return nodes.ol.create(null, nodes.li.create());
 	// 						case "reg":
-	// 							translation.pushBlock("p", 1);
+	// 							console.dir(builder.state.toJSON(), { depth: null });
+	// 							insertP("");
 	// 							break;
 	// 						default:
 	// 							console.warn(
 	// 								"unknown paragraph type",
 	// 								bcv,
-	// 								tag.attrs.class,
+	// 								wordOrTag.attrs.class,
 	// 							);
-	// 							return;
+	// 							break;
 	// 					}
 	// 				}
-	// 				case "i":
-	// 					// Some footnotes use this for emphasis.
-	// 					if (tag.attrs) translation.startSpan({ tag: "em" })
-	// 					else translation.endSpan("em");
-	// 					return;
-	// 				case "span":
-	// 					if (tag.attrs) translation.startSpan({ tag: "q", cite: "jesus" })
-	// 					else translation.endSpan("q");
-	// 					return;
-	// 				default:
-	// 					console.warn("unknown tag", bcv, tag.tag);
-	// 					return;
+	// 				// case "i":
+	// 				// 	// Some footnotes use this for emphasis.
+	// 				// 	if (tag.attrs) translation.startSpan({ tag: "em" });
+	// 				// 	else translation.endSpan("em");
+	// 				// 	return;
+	// 				// case "span":
+	// 				// 	if (tag.attrs) translation.startSpan({ tag: "q", cite: "jesus" });
+	// 				// 	else translation.endSpan("q");
+	// 				// 	return;
+	// 				// default:
+	// 				// 	console.warn("unknown tag", bcv, tag.tag);
+	// 				// 	return;
 	// 			}
 	// 		}
 	// 	}
