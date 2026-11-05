@@ -22,42 +22,36 @@ function pushHeading(b: Builder, level: number, text: string) {
 	b.insert(Plot.End, heading);
 }
 
+const bookConfig = schemaBook.schema.map((s) => GardState.schemaElement.of(s));
+const noteConfig = schemaNote.schema.map((s) => GardState.schemaElement.of(s));
+
 const createDoc = (
 	book: string,
 	lang: string,
 	title: string,
 	sourceLang: string,
 ) => {
-	const res = new Builder(
-		schemaBook.schema.map((s) => GardState.schemaElement.of(s)),
-		{
-			type: "book",
-			id: newId(),
-			lang,
-			published,
-			book,
-		},
-	);
-	res.xrefs["source"] = new Builder(
-		schemaBook.schema.map((s) => GardState.schemaElement.of(s)),
-		{
-			type: "book",
-			id: newId(),
-			lang: sourceLang,
-			published,
-			book,
-		},
-	);
-	res.xrefs["note"] = new Builder(
-		schemaNote.schema.map((s) => GardState.schemaElement.of(s)),
-		{
-			type: "note",
-			id: newId(),
-			title: "Translator's Notes",
-			lang,
-			published,
-		},
-	);
+	const res = new Builder(bookConfig, {
+		type: "book",
+		id: newId(),
+		lang,
+		published,
+		book,
+	});
+	res.xrefs["source"] = new Builder(bookConfig, {
+		type: "book",
+		id: newId(),
+		lang: sourceLang,
+		published,
+		book,
+	});
+	res.xrefs["note"] = new Builder(noteConfig, {
+		type: "note",
+		id: newId(),
+		title: "Translator's Notes",
+		lang,
+		published,
+	});
 	if (title) {
 		pushHeading(res, 1, title);
 		pushHeading(res.xrefs["source"], 1, title);

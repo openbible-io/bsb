@@ -1,7 +1,7 @@
-import { type Bcv, book as rBook } from "@nerd-bible/ref";
-import type { Lang, Tag } from "./html.ts";
+import type { Bcv } from "@nerd-bible/ref";
+import type { Lang } from "./html.ts";
 import { wordsAndTags } from "./html.ts";
-import { type Builder } from "@nerd-bible/schema";
+import type { Builder } from "@nerd-bible/schema";
 import { Leaf, Plot } from "wordgard/doc";
 import { book as schemaBook, note as schemaNote } from "@nerd-bible/schema";
 
@@ -53,7 +53,7 @@ function insertSourceToken(
 		return m1;
 	});
 
-	const start = b.state.doc.length;
+	const start = b.cursor;
 	b.insert(text);
 	prevWasWordJoiner = text.endsWith("־");
 
@@ -98,14 +98,14 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 			source.insert(Plot.End, schemaBook.Paragraph.of(paraClass).create());
 			paraClass = "";
 		}
-		source.insert(vnum);
+		source.insert(vnum, Plot.End);
 
 		for (let i = 0; i < sourceIndices.length; i++) {
 			const sourceIndex = sourceIndices[i];
 			const row = rows[sourceIndex];
 			const text = row.source?.text;
 			if (!text) {
-				console.warn("missing source", bcv, rows[i].order);
+				console.warn(rows[i].order, "missing source", bcv);
 				continue;
 			}
 
@@ -146,16 +146,16 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 							const marks = smoothingLevel
 								? [schemaBook.Smoothed.of(smoothingLevel)]
 								: [];
-							const lastJoin =
-								builder.lastInsert?.isText &&
+							const prevCanSpace =
+								builder.lastInsert.isText &&
 								!/[\p{Pc}|\p{Pd}|\p{Ps}|\p{Pi}]$/u.test(
 									builder.lastInsert.param as string,
 								);
-							const curJoin = !/^[\p{Pc}\p{Po}.]/u.test(token);
-							if (lastJoin && curJoin) builder.insert(" ");
+							const curCanSpace = !/^[\p{Pc}\p{Po}.]/u.test(token);
+							if (prevCanSpace && curCanSpace) builder.insert(" ");
 
-							if (!insertedVnum && (builder.lastInsert?.isLeaf || builder.lastInsert?.type.name == schemaBook.Paragraph.name)) {
-								builder.insert(vnum);
+							if (!insertedVnum && builder.isInsertValid(vnum)) {
+								builder.insert(vnum, Plot.End);
 								insertedVnum = true;
 							}
 							builder.insert(Leaf.text(token, marks));
