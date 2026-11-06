@@ -12,15 +12,18 @@ export function parseLang(lang: string): Lang {
 
 // undefined attrs = closing tag
 export type Tag = { tag: string; attrs?: Record<string, string> };
-export function wordsAndTags(str: string): (string | Tag)[] {
-	let res: ReturnType<typeof wordsAndTags> = [];
+export function tokenize(str: string): (string | Tag)[] {
+	let res: ReturnType<typeof tokenize> = [];
 	const startTag = /<\s*([^/>][^>\s]*)\s*([^>]*)\s*>/;
 	const endTag = /<\s*\/([^>]*)\s*>/;
 	const attr = /\s*(\w+)=\|([^|]*)\|/g;
 	const tag = new RegExp(`(?:${startTag.source})|(?:${endTag.source})`, "g");
 
 	let index = 0;
-	const pushWords = (end?: number) => res.push(str.substring(index, end));
+	const pushWords = (end?: number) => {
+		const substr = str.substring(index, end);
+		if (substr) res.push(substr);
+	};
 
 	for (
 		let match;

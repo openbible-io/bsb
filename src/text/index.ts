@@ -46,6 +46,6 @@ function writeFs(book: string, docs: (Doc | SourceMap)[]) {
 		const path = join(dir, fname);
 		mkdirSync(dirname(path), { recursive: true });
 		writeFileSync(path, canonicalize(d) as string);
-		console.log(path);
+		// console.log(path);
 	}
 }

@@ -1,6 +1,6 @@
 import type { Bcv } from "@nerd-bible/ref";
 import type { Lang } from "./html.ts";
-import { wordsAndTags } from "./html.ts";
+import { tokenize } from "./html.ts";
 import type { Builder } from "@nerd-bible/schema";
 import { Leaf, Plot } from "wordgard/doc";
 import { book as schemaBook, note as schemaNote } from "@nerd-bible/schema";
@@ -113,17 +113,16 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 		}
 	}
 
-	// Translation and notes
+	// Translation, notes, and source map
 	let insertedVnum = false;
 	for (let ti = 0; ti < rows.length; ti++) {
 		const raw = rows[ti];
 		if (!raw.translation) continue;
-
 		// need sigil that isn't punctuation and isn't in main text
-		for (const wordOrTag of wordsAndTags(raw.translation.html)) {
-			if (typeof wordOrTag == "string") {
-				for (const token of tokenizeWord(wordOrTag)) {
-					switch (token) {
+		for (const token of tokenize(raw.translation.html)) {
+			if (typeof token == "string") {
+				for (const t of tokenizeWord(token)) {
+					switch (t) {
 						case "{":
 							smoothingLevel = 2; // explicit smoothing
 							break;
@@ -151,27 +150,27 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 								!/[\p{Pc}|\p{Pd}|\p{Ps}|\p{Pi}]$/u.test(
 									builder.lastInsert.param as string,
 								);
-							const curCanSpace = !/^[\p{Pc}\p{Po}.]/u.test(token);
+							const curCanSpace = !/^[\p{Pc}\p{Po}.]/u.test(t);
 							if (prevCanSpace && curCanSpace) builder.insert(" ");
 
 							if (!insertedVnum && builder.isInsertValid(vnum)) {
 								builder.insert(vnum, Plot.End);
 								insertedVnum = true;
 							}
-							builder.insert(Leaf.text(token, marks));
+							builder.insert(Leaf.text(t, marks));
 							break;
 					}
 				}
 			} else {
 				const insertP = (claz: string) =>
 					builder.insert(Plot.End, schemaBook.Paragraph.of(claz).create());
-				switch (wordOrTag.tag) {
+				switch (token.tag) {
 					case "p": {
-						if (!wordOrTag.attrs) {
+						if (!token.attrs) {
 							console.warn("ignoring closing p tag", bcv);
 							return;
 						}
-						switch (wordOrTag.attrs["class"]) {
+						switch (token.attrs["class"]) {
 							case "acrostic":
 							case "indent1stline":
 							case "tab1stline":
@@ -222,42 +221,34 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 								console.warn(
 									"unknown paragraph type",
 									bcv,
-									wordOrTag.attrs.class,
+									token.attrs.class,
 								);
 								break;
 						}
 					}
-					// case "i":
-					// 	// Some footnotes use this for emphasis.
-					// 	if (tag.attrs) translation.startSpan({ tag: "em" });
-					// 	else translation.endSpan("em");
-					// 	return;
-					// case "span":
-					// 	if (tag.attrs) translation.startSpan({ tag: "q", cite: "jesus" });
-					// 	else translation.endSpan("q");
-					// 	return;
-					// default:
-					// 	console.warn("unknown tag", bcv, tag.tag);
-					// 	return;
+				}
+			}
+
+			const note = builder.xrefs["note"];
+			const tokens = tokenize(raw.translation.footnotesHtml);
+			if (tokens.length)
+				note.insert(Plot.End, schemaNote.Paragraph.of("").create());
+			for (const wordOrTag of tokens) {
+				if (typeof wordOrTag == "string") note.insert(wordOrTag);
+				else {
+					switch (wordOrTag.tag) {
+						case "i":
+							if (wordOrTag.attrs) note.activate(schemaNote.Emphasis);
+							else note.deactivate(schemaNote.Emphasis);
+							break;
+						case "span":
+							break;
+						default:
+							console.warn("unknown footnote tag", bcv, wordOrTag.tag);
+							break;
+					}
 				}
 			}
 		}
-
-		// const footnotes = wordsAndTags(raw.translation.footnotesHtml);
-		// activeMarks = [];
-		// if (footnotes.length) {
-		// 	const footnote = nodes.footnote.create(null, nodes.p.create());
-		// 	for (const wordOrTag of footnotes) {
-		// 		const node = translationNode(bcv, translation, wordOrTag);
-		// 		if (node) {
-		// 			if (node.isInline) appendInline(footnote, node);
-		// 			else appendBlock(footnote, node);
-		// 		}
-		// 	}
-		//
-		// 	appendInline(translation, footnote);
-		// 	if (bcv.chapter === 11 && bcv.verse == 13)
-		// 		console.log(footnote.toString());
-		// }
 	}
 }
