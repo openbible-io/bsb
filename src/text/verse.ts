@@ -43,7 +43,7 @@ export function pushHeading(b: Builder, level: number, text: string) {
 function insertSourceToken(
 	b: Builder,
 	text: string,
-): { start: number; length: number } {
+): { pos: number; length: number } {
 	text = text.trim().replace(na28Sigils, "");
 	if (!prevWasWordJoiner) b.insert(" ");
 
@@ -53,7 +53,7 @@ function insertSourceToken(
 		return m1;
 	});
 
-	const start = b.cursor;
+	const pos = b.cursor;
 	b.insert(text);
 	prevWasWordJoiner = text.endsWith("־");
 
@@ -61,7 +61,7 @@ function insertSourceToken(
 	else if (whitespaceSigil == "ס")
 		b.insert(schemaBook.Whitespace.of(whitespaceSigil));
 
-	return { start, length: text.length };
+	return { pos, length: text.length };
 }
 
 function tokenizeWord(w: string): string[] {
@@ -87,7 +87,7 @@ function tokenizeWord(w: string): string[] {
 export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 	const vnum = schemaBook.VerseNum.create([Leaf.text(bcv.verse.toString())]);
 	// Source
-	const sourceMap = [];
+	const sourceMap: ReturnType<typeof insertSourceToken>[] = [];
 	{
 		const source = builder.xrefs["source"];
 		const sourceIndices = Array.from(rows.keys()).sort(
@@ -115,10 +115,11 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 
 	// Translation, notes, and source map
 	let insertedVnum = false;
-	for (let ti = 0; ti < rows.length; ti++) {
-		const raw = rows[ti];
+	for (let i = 0; i < rows.length; i++) {
+		const raw = rows[i];
 		if (!raw.translation) continue;
-		// need sigil that isn't punctuation and isn't in main text
+
+		// translation
 		for (const token of tokenize(raw.translation.html)) {
 			if (typeof token == "string") {
 				for (const t of tokenizeWord(token)) {
@@ -157,6 +158,16 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 								builder.insert(vnum, Plot.End);
 								insertedVnum = true;
 							}
+
+							const map = builder.xrefsMap["source"];
+							if (sourceMap[i]) {
+								map.fromPos.push(sourceMap[i].pos);
+								map.fromLen.push(sourceMap[i].length);
+								map.toLen.push(t.length);
+								map.toPos.push(builder.doc.length);
+								map.toLen.push(t.length);
+							}
+
 							builder.insert(Leaf.text(t, marks));
 							break;
 					}
@@ -218,35 +229,32 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 								insertP("");
 								break;
 							default:
-								console.warn(
-									"unknown paragraph type",
-									bcv,
-									token.attrs.class,
-								);
+								console.warn("unknown paragraph type", bcv, token.attrs.class);
 								break;
 						}
 					}
 				}
 			}
+		}
 
-			const note = builder.xrefs["note"];
-			const tokens = tokenize(raw.translation.footnotesHtml);
-			if (tokens.length)
-				note.insert(Plot.End, schemaNote.Paragraph.of("").create());
-			for (const wordOrTag of tokens) {
-				if (typeof wordOrTag == "string") note.insert(wordOrTag);
-				else {
-					switch (wordOrTag.tag) {
-						case "i":
-							if (wordOrTag.attrs) note.activate(schemaNote.Emphasis);
-							else note.deactivate(schemaNote.Emphasis);
-							break;
-						case "span":
-							break;
-						default:
-							console.warn("unknown footnote tag", bcv, wordOrTag.tag);
-							break;
-					}
+		// notes
+		const note = builder.xrefs["note"];
+		const tokens = tokenize(raw.translation.footnotesHtml);
+		if (tokens.length)
+			note.insert(Plot.End, schemaNote.Paragraph.of("").create());
+		for (const wordOrTag of tokens) {
+			if (typeof wordOrTag == "string") note.insert(wordOrTag);
+			else {
+				switch (wordOrTag.tag) {
+					case "i":
+						if (wordOrTag.attrs) note.activate(schemaNote.Emphasis);
+						else note.deactivate(schemaNote.Emphasis);
+						break;
+					case "span":
+						break;
+					default:
+						console.warn("unknown footnote tag", bcv, wordOrTag.tag);
+						break;
 				}
 			}
 		}

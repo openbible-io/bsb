@@ -39,7 +39,7 @@ function writeFs(book: string, docs: (Doc | SourceMap)[]) {
 					console.error("sourcemap has invalid target", d.target);
 					continue;
 				}
-				fname = getDocName(target.meta) + ".map";
+				fname = getDocName(target.meta) + ".nb.map";
 				break;
 		}
 

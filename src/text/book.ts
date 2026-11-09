@@ -45,6 +45,14 @@ const createDoc = (
 		published,
 		book,
 	});
+	res.xrefsMap["source"] = {
+		fromId: res.xrefs["source"].meta.id,
+		fromPos: [],
+		fromLen: [],
+		toId: res.meta.id,
+		toPos: [],
+		toLen: [],
+	};
 	res.xrefs["note"] = new Builder(noteConfig, {
 		type: "note",
 		id: newId(),
