@@ -12,9 +12,9 @@
 		"@nerd-bible/ref": "^0.2.2",
 		"@nerd-bible/schema": "file:../schema",
 		"@types/node": "^26.6.6",
-		"canonicalize": "^5.1.0",
+		"prettier": "^3.10.1",
 		"vite": "^8.3.5",
-		"wordgard": "npm:@nerd-bible/wordgard@^0.6.2-beta3"
+		"wordgard": "^0.7.0"
 	},
 	"prettier": "@nerd-bible/config/prettier"
 }

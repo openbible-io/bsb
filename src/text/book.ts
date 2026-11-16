@@ -1,76 +1,17 @@
 import type { FileHandle } from "node:fs/promises";
 import { parseLang } from "./html.ts";
 import { parseBcvStrict, type Bcv, book as rBook } from "@nerd-bible/ref";
-import {
-	Builder,
-	book as schemaBook,
-	note as schemaNote,
-} from "@nerd-bible/schema";
 import type { Row, SourceRow, TranslationRow } from "./verse.ts";
 import { pushVerse } from "./verse.ts";
-import { GardState } from "wordgard/state";
-import { Leaf, Plot } from "wordgard/doc";
+import { MultiBuilder } from "./multi-builder.ts";
 
 export const shortcode = "bsb";
 const published = new Date(2024, 11, 17);
 
-const newId = () => crypto.randomUUID();
-
-function pushHeading(b: Builder, level: number, text: string) {
-	// console.log("pushHeading", level, text);
-	const heading = schemaBook.Heading.of(level).create([Leaf.text(text)]);
-	b.insert(Plot.End, heading);
-}
-
-const bookConfig = schemaBook.schema.map((s) => GardState.schemaElement.of(s));
-const noteConfig = schemaNote.schema.map((s) => GardState.schemaElement.of(s));
-
-const createDoc = (
-	book: string,
-	lang: string,
-	title: string,
-	sourceLang: string,
-) => {
-	const res = new Builder(bookConfig, {
-		type: "book",
-		id: newId(),
-		lang,
-		published,
-		book,
-	});
-	res.xrefs["source"] = new Builder(bookConfig, {
-		type: "book",
-		id: newId(),
-		lang: sourceLang,
-		published,
-		book,
-	});
-	res.xrefsMap["source"] = {
-		fromId: res.xrefs["source"].meta.id,
-		fromPos: [],
-		fromLen: [],
-		toId: res.meta.id,
-		toPos: [],
-		toLen: [],
-	};
-	res.xrefs["note"] = new Builder(noteConfig, {
-		type: "note",
-		id: newId(),
-		title: "Translator's Notes",
-		lang,
-		published,
-	});
-	if (title) {
-		pushHeading(res, 1, title);
-		pushHeading(res.xrefs["source"], 1, title);
-	}
-	return res;
-};
-
-export async function* books(file: FileHandle): AsyncGenerator<Builder> {
+export async function* books(file: FileHandle): AsyncGenerator<MultiBuilder> {
 	let rowI = 0;
 	let prevBcv: Bcv | undefined;
-	let builder = createDoc("", "", "", "");
+	let builder = new MultiBuilder("", "", published, "");
 
 	let verseRows: Row[] = [];
 	function flushVerse(bcv: Bcv) {
@@ -138,17 +79,16 @@ export async function* books(file: FileHandle): AsyncGenerator<Builder> {
 				if (!builder.isEmpty()) yield builder;
 
 				const title = verseRef.replace(/\s*\d+:\d+/, "");
-				builder = createDoc(
+				builder = new MultiBuilder(
 					newBcv.book,
 					"eng",
-					title,
+					published,
 					rBook.isNewTestament(newBcv.book) ? "grc" : "hbo",
+					{ title },
 				);
 			}
 			if (diffChapter) {
-				const text = newBcv.chapter.toString();
-				pushHeading(builder, 2, text);
-				pushHeading(builder.xrefs["source"], 2, text);
+				builder.pushChapter(newBcv.chapter.toString());
 			}
 
 			prevBcv = newBcv;

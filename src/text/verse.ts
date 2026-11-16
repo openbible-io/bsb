@@ -2,8 +2,9 @@ import type { Bcv } from "@nerd-bible/ref";
 import type { Lang } from "./html.ts";
 import { tokenize } from "./html.ts";
 import type { Builder } from "@nerd-bible/schema";
-import { Leaf, Plot } from "wordgard/doc";
-import { book as schemaBook, note as schemaNote } from "@nerd-bible/schema";
+import { types } from "@nerd-bible/schema";
+import { Plot } from "wordgard/doc";
+import type { MultiBuilder } from "./multi-builder.ts";
 
 export type SourceRow = {
 	text: string;
@@ -34,18 +35,12 @@ let smoothingLevel = 0;
 let paraClass = "פ";
 let prevWasWordJoiner = false;
 
-export function pushHeading(b: Builder, level: number, text: string) {
-	// console.log("pushHeading", level, text);
-	const heading = schemaBook.Heading.of(level).create([Leaf.text(text)]);
-	b.insert(Plot.End, heading);
-}
-
 function insertSourceToken(
-	b: Builder,
+	mb: MultiBuilder,
 	text: string,
 ): { pos: number; length: number } {
 	text = text.trim().replace(na28Sigils, "");
-	if (!prevWasWordJoiner) b.insert(" ");
+	if (!prevWasWordJoiner) mb.source.push(" ");
 
 	let whitespaceSigil;
 	text = text.replace(bhsBlockSigils, (_, m1, m2) => {
@@ -53,13 +48,12 @@ function insertSourceToken(
 		return m1;
 	});
 
-	const pos = b.cursor;
-	b.insert(text);
+	const pos = mb.source.cursor;
+	mb.source.push(text);
 	prevWasWordJoiner = text.endsWith("־");
 
 	if (whitespaceSigil == "פ") paraClass = whitespaceSigil;
-	else if (whitespaceSigil == "ס")
-		b.insert(schemaBook.Whitespace.of(whitespaceSigil));
+	else if (whitespaceSigil == "ס") mb.pushBreak(whitespaceSigil);
 
 	return { pos, length: text.length };
 }
@@ -84,21 +78,21 @@ function tokenizeWord(w: string): string[] {
 	return res;
 }
 
-export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
-	const vnum = schemaBook.VerseNum.create([Leaf.text(bcv.verse.toString())]);
+export function pushVerse(bcv: Bcv, rows: Row[], mb: MultiBuilder) {
+	mb.pushVerse(bcv.verse.toString());
 	// Source
 	const sourceMap: ReturnType<typeof insertSourceToken>[] = [];
 	{
-		const source = builder.xrefs["source"];
 		const sourceIndices = Array.from(rows.keys()).sort(
 			(a, b) => rows[a].order - rows[b].order,
 		);
 
-		if (paraClass || bcv.verse == 1) {
-			source.insert(Plot.End, schemaBook.Paragraph.of(paraClass).create());
+		if (paraClass) {
+			mb.pushPara(paraClass);
 			paraClass = "";
+		} else if (bcv.verse == 1) {
+			mb.pushPara("", true, true);
 		}
-		source.insert(vnum, Plot.End);
 
 		for (let i = 0; i < sourceIndices.length; i++) {
 			const sourceIndex = sourceIndices[i];
@@ -109,17 +103,16 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 				continue;
 			}
 
-			sourceMap[sourceIndex] = insertSourceToken(source, text);
+			sourceMap[sourceIndex] = insertSourceToken(mb, text);
 		}
 	}
 
-	// Translation, notes, and source map
-	let insertedVnum = false;
+	// Translation
 	for (let i = 0; i < rows.length; i++) {
 		const raw = rows[i];
 		if (!raw.translation) continue;
 
-		// translation
+		// rich text
 		for (const token of tokenize(raw.translation.html)) {
 			if (typeof token == "string") {
 				for (const t of tokenizeWord(token)) {
@@ -144,37 +137,13 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 							break;
 						default:
 							const marks = smoothingLevel
-								? [schemaBook.Smoothed.of(smoothingLevel)]
+								? [types.book.Smooth.of(smoothingLevel)]
 								: [];
-							const prevCanSpace =
-								builder.lastInsert.isText &&
-								!/[\p{Pc}|\p{Pd}|\p{Ps}|\p{Pi}]$/u.test(
-									builder.lastInsert.param as string,
-								);
-							const curCanSpace = !/^[\p{Pc}\p{Po}.]/u.test(t);
-							if (prevCanSpace && curCanSpace) builder.insert(" ");
-
-							if (!insertedVnum && builder.isInsertValid(vnum)) {
-								builder.insert(vnum, Plot.End);
-								insertedVnum = true;
-							}
-
-							const map = builder.xrefsMap["source"];
-							if (sourceMap[i]) {
-								map.fromPos.push(sourceMap[i].pos);
-								map.fromLen.push(sourceMap[i].length);
-								map.toLen.push(t.length);
-								map.toPos.push(builder.doc.length);
-								map.toLen.push(t.length);
-							}
-
-							builder.insert(Leaf.text(t, marks));
+							mb.pushText(t, bcv.verse.toString(), marks, sourceMap[i]);
 							break;
 					}
 				}
 			} else {
-				const insertP = (claz: string) =>
-					builder.insert(Plot.End, schemaBook.Paragraph.of(claz).create());
 				switch (token.tag) {
 					case "p": {
 						if (!token.attrs) {
@@ -190,30 +159,25 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 							case "indentred1":
 							case "tab1stlinered":
 							case "indent1stlinered":
-								insertP("poetry");
+								mb.pushPara("poetry");
 								break;
 							case "indent2":
 							case "indentred2":
 							case "tab2":
-								builder.insert(schemaBook.LineBreak);
+								mb.pushLineBreak();
 								break;
 							case "selah":
 							case "inscrip": // SOMETHING IN CAPS
 								break;
 							case "suphdg": // psalm "BOOK I"
 							case "hdg":
-								builder.insert(Plot.End, schemaBook.Heading.of(3).create());
+								mb.pushHeading(3);
 								break;
 							case "ihdg":
-								builder.insert(
-									Plot.End,
-									schemaBook.Heading.of(3).create([
-										Leaf.text("", [schemaBook.Emphasis]),
-									]),
-								);
+								mb.pushHeading(3, "", [types.book.Emphasis]);
 								break;
 							case "subhdg":
-								builder.insert(Plot.End, schemaBook.Heading.of(4).create());
+								mb.pushHeading(4);
 								break;
 							case "list1stline":
 							case "list1":
@@ -226,7 +190,7 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 							case "reg":
 							case "pshdg": // for the choirmaster
 							case "red": // words of Jesus
-								insertP("");
+								mb.pushPara("");
 								break;
 							default:
 								console.warn("unknown paragraph type", bcv, token.attrs.class);
@@ -238,23 +202,27 @@ export function pushVerse(bcv: Bcv, rows: Row[], builder: Builder) {
 		}
 
 		// notes
-		const note = builder.xrefs["note"];
 		const tokens = tokenize(raw.translation.footnotesHtml);
-		if (tokens.length)
-			note.insert(Plot.End, schemaNote.Paragraph.of("").create());
-		for (const wordOrTag of tokens) {
-			if (typeof wordOrTag == "string") note.insert(wordOrTag);
-			else {
-				switch (wordOrTag.tag) {
-					case "i":
-						if (wordOrTag.attrs) note.activate(schemaNote.Emphasis);
-						else note.deactivate(schemaNote.Emphasis);
-						break;
-					case "span":
-						break;
-					default:
-						console.warn("unknown footnote tag", bcv, wordOrTag.tag);
-						break;
+		if (tokens.length) {
+			// TODO: xref
+			if (tokens.some(t => typeof t == "string" && /cited in/i.test(t))) continue;
+
+			const doc: Builder = mb.createAnnotation();
+			doc.push(Plot.End, types.note.Paragraph.of("").create());
+			for (const wordOrTag of tokens) {
+				if (typeof wordOrTag == "string") doc.push(wordOrTag);
+				else {
+					switch (wordOrTag.tag) {
+						case "i":
+							if (wordOrTag.attrs) doc.activate(types.note.Emphasis);
+							else doc.deactivate(types.note.Emphasis);
+							break;
+						case "span":
+							break;
+						default:
+							console.warn("unknown footnote tag", bcv, wordOrTag.tag);
+							break;
+					}
 				}
 			}
 		}
