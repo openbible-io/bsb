@@ -6,9 +6,6 @@ import type { Doc } from "@nerd-bible/schema";
 const bookConfig = Object.values(types.book).map((s) =>
 	GardState.schemaElement.of(s),
 );
-const noteConfig = Object.values(types.note).map((s) =>
-	GardState.schemaElement.of(s),
-);
 
 const newId = () => crypto.randomUUID();
 
@@ -106,19 +103,14 @@ export class MultiBuilder {
 		this.source.push(types.book.Break.of(class_));
 	}
 
-	createAnnotation(): Builder {
-		const builder = new Builder(noteConfig, {
-			id: newId(),
-			lang: this.book.meta.lang,
-			published: this.book.meta.published,
-			authors: this.book.meta.authors,
-		});
-		this.annotations.push({
-			pos: this.book.cursor,
-			length: 0,
-			builder,
-		});
-		return builder;
+	pushNoteAtom(b: Builder) {
+		this.book.pushLayer(
+			"Publisher Notes",
+			types.book.NoteAtom.of({
+				tags: [],
+				note: b.finish().content,
+			}),
+		);
 	}
 
 	insertedVerses = new Set<string>();

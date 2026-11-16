@@ -1,10 +1,11 @@
 import type { Bcv } from "@nerd-bible/ref";
 import type { Lang } from "./html.ts";
 import { tokenize } from "./html.ts";
-import type { Builder } from "@nerd-bible/schema";
+import { Builder } from "@nerd-bible/schema";
 import { types } from "@nerd-bible/schema";
 import { Plot } from "wordgard/doc";
 import type { MultiBuilder } from "./multi-builder.ts";
+import { GardState } from "wordgard/state";
 
 export type SourceRow = {
 	text: string;
@@ -34,6 +35,10 @@ const wordSigils = /[{}\[\]]|vvv|\. \. \.|\B-\B/g;
 let smoothingLevel = 0;
 let paraClass = "פ";
 let prevWasWordJoiner = false;
+
+const noteConfig = Object.values(types.note).map((s) =>
+	GardState.schemaElement.of(s),
+);
 
 function insertSourceToken(
 	mb: MultiBuilder,
@@ -207,7 +212,7 @@ export function pushVerse(bcv: Bcv, rows: Row[], mb: MultiBuilder) {
 			// TODO: xref
 			if (tokens.some(t => typeof t == "string" && /cited in/i.test(t))) continue;
 
-			const doc: Builder = mb.createAnnotation();
+			const doc = new Builder(noteConfig, mb.book.meta);
 			doc.push(Plot.End, types.note.Paragraph.of("").create());
 			for (const wordOrTag of tokens) {
 				if (typeof wordOrTag == "string") doc.push(wordOrTag);
@@ -225,6 +230,8 @@ export function pushVerse(bcv: Bcv, rows: Row[], mb: MultiBuilder) {
 					}
 				}
 			}
+
+			mb.pushNoteAtom(doc);
 		}
 	}
 }

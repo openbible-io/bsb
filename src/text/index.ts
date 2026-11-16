@@ -22,15 +22,12 @@ function writeFs(book: string, docs: Doc[]) {
 	for (const d of docs) {
 		let fname;
 		switch (d.type) {
-			case "doc":
+			case "richText":
 				fname = getDocName(d.meta) + ".nb";
-				break;
-			case "annotation":
-				fname = getDocName(d.meta) + ".annotation.nb";
 				break;
 			case "sourceMap":
 				const target = docs.find(
-					(d2) => d2.type == "doc" && d2.meta.id == d.toId,
+					(d2) => d2.type == "richText" && d2.meta.id == d.toId,
 				) as richText.RichText;
 				if (!target) {
 					console.error("sourcemap has invalid target", d.toId);
