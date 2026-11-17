@@ -27,6 +27,7 @@ export async function* books(file: FileHandle): AsyncGenerator<MultiBuilder> {
 
 	for await (const line of file.readLines()) {
 		if (rowI++ === 0) continue; // header
+		if (prevBcv?.verse! > 1) continue;
 
 		let [
 			hebSort,

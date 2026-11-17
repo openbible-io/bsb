@@ -3,9 +3,8 @@ import type { Lang } from "./html.ts";
 import { tokenize } from "./html.ts";
 import { Builder } from "@nerd-bible/schema";
 import { types } from "@nerd-bible/schema";
-import { Plot } from "wordgard/doc";
+import { Mark, Plot } from "wordgard/doc";
 import type { MultiBuilder } from "./multi-builder.ts";
-import { GardState } from "wordgard/state";
 
 export type SourceRow = {
 	text: string;
@@ -36,10 +35,6 @@ let smoothingLevel = 0;
 let paraClass = "פ";
 let prevWasWordJoiner = false;
 
-const noteConfig = Object.values(types.note).map((s) =>
-	GardState.schemaElement.of(s),
-);
-
 function insertSourceToken(
 	mb: MultiBuilder,
 	text: string,
@@ -53,7 +48,7 @@ function insertSourceToken(
 		return m1;
 	});
 
-	const pos = mb.source.cursor;
+	const { pos } = mb.source;
 	mb.source.push(text);
 	prevWasWordJoiner = text.endsWith("־");
 
@@ -84,7 +79,6 @@ function tokenizeWord(w: string): string[] {
 }
 
 export function pushVerse(bcv: Bcv, rows: Row[], mb: MultiBuilder) {
-	mb.pushVerse(bcv.verse.toString());
 	// Source
 	const sourceMap: ReturnType<typeof insertSourceToken>[] = [];
 	{
@@ -93,11 +87,10 @@ export function pushVerse(bcv: Bcv, rows: Row[], mb: MultiBuilder) {
 		);
 
 		if (paraClass) {
-			mb.pushPara(paraClass);
+			mb.pushPara(paraClass, true);
 			paraClass = "";
-		} else if (bcv.verse == 1) {
-			mb.pushPara("", true, true);
 		}
+		mb.pushVerse(bcv.verse.toString(), true);
 
 		for (let i = 0; i < sourceIndices.length; i++) {
 			const sourceIndex = sourceIndices[i];
@@ -113,12 +106,15 @@ export function pushVerse(bcv: Bcv, rows: Row[], mb: MultiBuilder) {
 	}
 
 	// Translation
+	let insertedVerse = false;
 	for (let i = 0; i < rows.length; i++) {
 		const raw = rows[i];
 		if (!raw.translation) continue;
 
 		// rich text
-		for (const token of tokenize(raw.translation.html)) {
+		const tokens = tokenize(raw.translation.html);
+		for (let j = 0; j < tokens.length; j++) {
+			const token = tokens[j];
 			if (typeof token == "string") {
 				for (const t of tokenizeWord(token)) {
 					switch (t) {
@@ -141,20 +137,25 @@ export function pushVerse(bcv: Bcv, rows: Row[], mb: MultiBuilder) {
 							// 	prev.misc["sourceWordId"] += `,${sourceWordId.toString()}`;
 							break;
 						default:
-							const marks = smoothingLevel
-								? [types.book.Smooth.of(smoothingLevel)]
-								: [];
-							mb.pushText(t, bcv.verse.toString(), marks, sourceMap[i]);
+							if (!insertedVerse) {
+								mb.pushVerse(bcv.verse.toString());
+								insertedVerse = true;
+							}
+							mb.pushText(t, smoothingLevel, sourceMap[i]);
 							break;
 					}
 				}
 			} else {
+				function pushHeading(level: number, marks?: Mark.Set) {
+					const text = tokens[j + 1];
+					if (typeof text == "string") {
+						mb.pushHeading(level, text, marks);
+						j += 1;
+					} else console.error("not adding textless heading", text);
+				}
 				switch (token.tag) {
 					case "p": {
-						if (!token.attrs) {
-							console.warn("ignoring closing p tag", bcv);
-							return;
-						}
+						if (!token.attrs) break; // BSB doesn't use closing tags
 						switch (token.attrs["class"]) {
 							case "acrostic":
 							case "indent1stline":
@@ -176,13 +177,13 @@ export function pushVerse(bcv: Bcv, rows: Row[], mb: MultiBuilder) {
 								break;
 							case "suphdg": // psalm "BOOK I"
 							case "hdg":
-								mb.pushHeading(3);
+								pushHeading(3);
 								break;
 							case "ihdg":
-								mb.pushHeading(3, "", [types.book.Emphasis]);
+								pushHeading(3, [types.book.Emphasis]);
 								break;
 							case "subhdg":
-								mb.pushHeading(4);
+								pushHeading(4);
 								break;
 							case "list1stline":
 							case "list1":
@@ -207,31 +208,34 @@ export function pushVerse(bcv: Bcv, rows: Row[], mb: MultiBuilder) {
 		}
 
 		// notes
-		const tokens = tokenize(raw.translation.footnotesHtml);
-		if (tokens.length) {
-			// TODO: xref
-			if (tokens.some(t => typeof t == "string" && /cited in/i.test(t))) continue;
+		{
+			const tokens = tokenize(raw.translation.footnotesHtml);
+			if (tokens.length) {
+				// TODO: xref
+				if (tokens.some((t) => typeof t == "string" && /cited in/i.test(t)))
+					continue;
 
-			const doc = new Builder(noteConfig, mb.book.meta);
-			doc.push(Plot.End, types.note.Paragraph.of("").create());
-			for (const wordOrTag of tokens) {
-				if (typeof wordOrTag == "string") doc.push(wordOrTag);
-				else {
-					switch (wordOrTag.tag) {
-						case "i":
-							if (wordOrTag.attrs) doc.activate(types.note.Emphasis);
-							else doc.deactivate(types.note.Emphasis);
-							break;
-						case "span":
-							break;
-						default:
-							console.warn("unknown footnote tag", bcv, wordOrTag.tag);
-							break;
+				const doc = new Builder(types.noteSchema, mb.book.meta);
+				doc.push(Plot.End, types.note.Paragraph.of("").create());
+				for (const wordOrTag of tokens) {
+					if (typeof wordOrTag == "string") doc.push(wordOrTag);
+					else {
+						switch (wordOrTag.tag) {
+							case "i":
+								if (wordOrTag.attrs) doc.activate(types.note.Emphasis);
+								else doc.deactivate(types.note.Emphasis);
+								break;
+							case "span":
+								break;
+							default:
+								console.warn("unknown footnote tag", bcv, wordOrTag.tag);
+								break;
+						}
 					}
 				}
-			}
 
-			mb.pushNoteAtom(doc);
+				mb.pushNoteAtom(doc);
+			}
 		}
 	}
 }

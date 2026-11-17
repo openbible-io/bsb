@@ -10,6 +10,7 @@ const file = await open(tsvPath);
 
 for await (const mb of books(file)) {
 	writeFs(mb.book.meta.book as string, mb.finish());
+	break;
 }
 
 function getDocName(meta: richText.Meta) {
@@ -39,7 +40,7 @@ function writeFs(book: string, docs: Doc[]) {
 
 		const path = join(dir, fname);
 		mkdirSync(dirname(path), { recursive: true });
-		writeFileSync(path, JSON.stringify(d));
+		writeFileSync(path, JSON.stringify(d, null, 2));
 		// console.log(path);
 	}
 }

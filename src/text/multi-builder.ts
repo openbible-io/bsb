@@ -1,26 +1,23 @@
 import { Builder, type SourceMap, types } from "@nerd-bible/schema";
 import { Leaf, Mark, Plot } from "wordgard/doc";
-import { GardState } from "wordgard/state";
 import type { Doc } from "@nerd-bible/schema";
 
-const bookConfig = Object.values(types.book).map((s) =>
-	GardState.schemaElement.of(s),
-);
-
 const newId = () => crypto.randomUUID();
-
-type AnnotationBuilder = {
-	pos: number;
-	length: number;
-	builder: Builder;
-};
+const bookLayers = [
+	"verses",
+	"chapters",
+	"headings",
+	"paragraphs",
+	"notes",
+] as const;
+const sourceLayers = ["verses", "chapters", "paragraphs"] as const;
 
 /// handles building multiple structures per-Bible book
 export class MultiBuilder {
-	book: Builder;
-	source: Builder;
+	book: Builder<(typeof bookLayers)[number]>;
+	bookLayer?: string;
+	source: Builder<(typeof sourceLayers)[number]>;
 	sourceMap: SourceMap;
-	annotations: AnnotationBuilder[] = [];
 
 	constructor(
 		book: string,
@@ -29,20 +26,28 @@ export class MultiBuilder {
 		sourceLang: string,
 		opts?: { title?: string; sourceTitle?: string },
 	) {
-		this.book = new Builder(bookConfig, {
-			id: newId(),
-			title: opts?.title,
-			lang,
-			published,
-			book,
-		});
-		this.source = new Builder(bookConfig, {
-			id: newId(),
-			title: opts?.sourceTitle,
-			lang: sourceLang,
-			published,
-			book,
-		});
+		this.book = new Builder(
+			types.bookSchema,
+			{
+				id: newId(),
+				title: opts?.title,
+				lang,
+				published,
+				book,
+			},
+			bookLayers,
+		);
+		this.source = new Builder(
+			types.noteSchema,
+			{
+				id: newId(),
+				title: opts?.sourceTitle,
+				lang: sourceLang,
+				published,
+				book,
+			},
+			sourceLayers,
+		);
 		this.sourceMap = {
 			type: "sourceMap",
 			schema: 1,
@@ -58,54 +63,47 @@ export class MultiBuilder {
 		if (opts?.sourceTitle) this.pushHeading(1, opts.sourceTitle);
 	}
 
-	pushVerse(num: string) {
-		const vnum = types.book.VerseNum.create([Leaf.text(num)]);
-		this.book.pushLayer("Verses", vnum);
-		this.source.pushLayer("Verses", vnum);
+	pushVerse(vnum: string, source = false) {
+		const num = types.book.VerseNum.create([Leaf.text(vnum)]);
+		(source ? this.source : this.book).layers.verses.push(num);
 	}
 
 	pushChapter(num: string) {
 		const cnum = types.book.Heading.of(2).create([Leaf.text(num)]);
-		this.book.pushLayer("Chapters", cnum);
-		this.source.pushLayer("Chapters", cnum);
-		this.insertedVerses = new Set();
+		this.book.layers.chapters.push(cnum);
+		this.source.layers.chapters.push(cnum);
 	}
 
-	pushPara(class_: string, source: boolean = false, layer = true) {
-		this.book.pushLayer(
-			"Paragraphs",
-			Plot.End,
-			types.book.Paragraph.of(class_),
-		);
-		if (source) {
-			if (layer)
-				this.source.pushLayer(
-					"Paragraphs",
-					Plot.End,
-					types.book.Paragraph.of(class_),
-				);
-			else this.source.push(Plot.End, types.book.Paragraph.of(class_));
-		}
+	pushPara(class_: string, source: boolean = false) {
+		const builder = source ? this.source : this.book;
+		if (
+			builder.lastInsert.type == types.book.Paragraph &&
+			builder.lastInsert.length == 2
+		) {
+			(builder.lastInsert.tag as any).param = class_;
+		} else
+			builder.layers.paragraphs.push(Plot.End, types.book.Paragraph.of(class_));
+		// assume headings and footnotes don't have paragraphs
+		this.bookLayer = undefined;
 	}
 
 	pushLineBreak() {
-		this.book.pushLayer("Paragraphs", types.book.LineBreak);
+		this.book.layers.paragraphs.push(types.book.LineBreak);
 	}
 
-	pushHeading(level: number, text?: string, marks?: Mark.Set) {
+	pushHeading(level: number, text: string, marks?: Mark.Set) {
 		const heading = types.book.Heading.of(level).create(
 			text ? [Leaf.text(text, marks)] : [],
 		);
-		this.book.pushLayer("Headings", Plot.End, heading);
+		this.book.layers.headings.push(Plot.End, heading);
 	}
 
 	pushBreak(class_: string = "") {
 		this.source.push(types.book.Break.of(class_));
 	}
 
-	pushNoteAtom(b: Builder) {
-		this.book.pushLayer(
-			"Publisher Notes",
+	pushNoteAtom(b: Builder<any>) {
+		this.book.layers.notes.push(
 			types.book.NoteAtom.of({
 				tags: [],
 				note: b.finish().content,
@@ -113,14 +111,12 @@ export class MultiBuilder {
 		);
 	}
 
-	insertedVerses = new Set<string>();
-
 	pushText(
 		text: string,
-		vnum: string,
-		marks: Mark.Set,
+		smoothingLevel?: number,
 		source?: { pos: number; length: number },
 	) {
+		debugger;
 		const prevCanSpace =
 			this.book.lastInsert.isText &&
 			!/[\p{Pc}|\p{Pd}|\p{Ps}|\p{Pi}]$/u.test(
@@ -129,15 +125,9 @@ export class MultiBuilder {
 		const curCanSpace = !/^[\p{Pc}\p{Po}.]/u.test(text);
 		if (prevCanSpace && curCanSpace) this.book.push(" ");
 
-		if (
-			!this.insertedVerses.has(vnum) &&
-			this.book.isInsertValid(types.book.VerseNum.type)
-		) {
-			this.pushVerse(vnum);
-			this.insertedVerses.add(vnum);
-		}
+		const { pos } = this.book;
 
-		const pos = this.book.cursor;
+		const marks = smoothingLevel ? [types.book.Smooth.of(smoothingLevel)] : [];
 		const length = this.book.push(Leaf.text(text, marks));
 		if (source) {
 			this.sourceMap.fromPos.push(source.pos);
@@ -152,32 +142,6 @@ export class MultiBuilder {
 	}
 
 	finish(): Doc[] {
-		const res: Doc[] = [
-			this.book.finish(),
-			this.source.finish(),
-			this.sourceMap,
-		];
-
-		if (this.annotations.length) {
-			const { meta } = this.book;
-			res.push({
-				type: "annotation",
-				schema: 1,
-				meta: {
-					id: newId(),
-					title: meta.title + " Notes",
-					authors: meta.authors,
-					published: meta.published,
-					lang: meta.lang,
-				},
-				on: meta.id,
-				annotations: this.annotations.map((a) => ({
-					pos: a.pos,
-					length: a.length,
-					content: a.builder.finish().content,
-				})),
-			});
-		}
-		return res;
+		return [this.book.finish(), this.source.finish(), this.sourceMap];
 	}
 }
