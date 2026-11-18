@@ -1,12 +1,12 @@
 import { Wordgard } from "wordgard/editor";
 import { history } from "wordgard/history";
-import { type Doc, types } from "@nerd-bible/schema";
+import { type richText, types } from "@nerd-bible/schema";
 import { GardState } from "wordgard/state";
-
 import idk from "../dist/gen/eng.nb?raw";
 import { ChangeSet } from "wordgard/doc";
+import { note } from "./note.ts";
 
-const doc: Doc = JSON.parse(idk);
+const doc: richText.RichText = JSON.parse(idk);
 const parent = document.getElementById("editor")!;
 
 if (doc.type != "richText") throw Error("expected richText");
@@ -14,36 +14,54 @@ if (doc.type != "richText") throw Error("expected richText");
 const ltr = doc.meta.lang != "hbo";
 if (!ltr) parent.dir = "rtl";
 
-const wgDoc = types.bookSchema.docFromJSON(doc.content as any);
+const docBase = types.bookSchema.docFromJSON(doc.content as richText.WgNode);
 
-let csAll = ChangeSet.empty(wgDoc.length);
+const activeLayers = new Set();
 for (const l in doc.layers) {
-	console.log(l);
-	const cs = ChangeSet.fromJSON(wgDoc.schema, doc.layers[l]);
-	csAll = csAll.compose(cs.transform(wgDoc, csAll));
+	const label = document.createElement("label");
+	const control = label.appendChild(document.createElement("input"));
+	label.append(l);
+	control.type = "checkbox";
+	control.addEventListener("change", (ev) => {
+		if ((ev.currentTarget as HTMLInputElement).checked) activeLayers.add(l);
+		else activeLayers.delete(l);
+
+		const csAll = buildCsAll();
+		const newDoc = csAll.apply(docBase);
+		const tr = wg.state.update({
+			changes: [{ from: 0, to: wg.state.doc.length, insert: newDoc.content }],
+		});
+		wg.dispatch(tr);
+	});
+	document.body.append(label);
 }
 
-console.log(csAll.toJSON());
+function buildCsAll() {
+	let csAll = ChangeSet.empty(docBase.length);
+	for (const l in doc.layers) {
+		if (!activeLayers.has(l)) continue;
+		const cs = ChangeSet.fromJSON(
+			docBase.schema,
+			doc.layers[l] as richText.WgChangeSet,
+		);
+		const transformed = cs.transform(docBase, csAll ,true);
+		csAll = csAll.compose(transformed);
+	}
+	return csAll;
+}
 
-// let csLayered;
-// for (const l of doc.layers) {
-// 	const cs = ChangeSet.fromJSON(wgDoc.schema, l.changeset);
-// 	console.log(l.name);
-// 	csLayered = csLayered ? cs.transform(wgDoc, csLayered, true) : cs;
-// }
-
-Wordgard.create({
-	parent,
-	doc: csAll.apply(wgDoc),
+const wg = Wordgard.create({
+	parent: document.body.appendChild(document.createElement("div")),
+	doc: docBase,
 	// doc: wgDocLayered,
 	config: [
 		history(),
-		types.bookSchema.elements.map((e) => GardState.schemaElement.of(e)),
 		GardState.textLTR.of(ltr),
 		Wordgard.styles({
 			"span.whitespace.ס": {
 				"&::before": { content: "'        '" },
 			},
 		}),
+		note(),
 	],
 });

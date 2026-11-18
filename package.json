@@ -4,7 +4,7 @@
 	"scripts": {
 		"download": "node ./src/download.ts",
 		"build": "node ./src/text/index.ts",
-		"start": "vite"
+		"start": "vite --force"
 	},
 	"devDependencies": {
 		"@nerd-bible/config": "^0.3.1",

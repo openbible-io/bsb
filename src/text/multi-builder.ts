@@ -4,12 +4,12 @@ import type { Doc } from "@nerd-bible/schema";
 
 const newId = () => crypto.randomUUID();
 const bookLayers = [
+	"paragraphs",
+	"headings",
+	"chapters",
+	"title",
 	"verses",
 	"notes",
-	"title",
-	"chapters",
-	"headings",
-	"paragraphs",
 ] as const;
 const sourceLayers = ["verses", "chapters", "paragraphs"] as const;
 
@@ -82,8 +82,9 @@ export class MultiBuilder {
 			builder.lastInsert.length == 2
 		) {
 			(builder.lastInsert.tag as any).param = class_;
-		} else
+		} else {
 			builder.layers.paragraphs.push(Plot.End, types.book.Paragraph.of(class_));
+		}
 		// assume headings and footnotes don't have paragraphs
 		this.bookLayer = undefined;
 	}
@@ -113,24 +114,33 @@ export class MultiBuilder {
 		);
 	}
 
-	pushText(
-		text: string,
-		smoothingLevel?: number,
-		source?: { pos: number; length: number },
-	) {
-		debugger;
+	maybePushSpace(text: string) {
 		const prevCanSpace =
 			this.book.lastInsert.isText &&
 			!/[\p{Pc}|\p{Pd}|\p{Ps}|\p{Pi}]$/u.test(
 				this.book.lastInsert.param as string,
 			);
 		const curCanSpace = !/^[\p{Pc}\p{Po}.]/u.test(text);
-		if (prevCanSpace && curCanSpace) this.book.push(" ");
+		if (prevCanSpace && curCanSpace) {
+			// if there was a block insertion here, make it replace this space
+			for (const l of bookLayers) {
+				const lastChange = this.book.layers[l].changes.at(-1);
+				if (lastChange?.insert[0]?.isPlot && lastChange.from == this.book.pos)
+					lastChange.to = lastChange.from + 1;
+			}
+			this.book.push(" ");
+		}
+	}
 
+	pushText(
+		text: string,
+		smoothingLevel?: number,
+		source?: { pos: number; length: number },
+	) {
 		const { pos } = this.book;
-
 		const marks = smoothingLevel ? [types.book.Smooth.of(smoothingLevel)] : [];
 		const length = this.book.push(Leaf.text(text, marks));
+
 		if (source) {
 			this.sourceMap.fromPos.push(source.pos);
 			this.sourceMap.fromLen.push(source.length);

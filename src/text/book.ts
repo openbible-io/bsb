@@ -11,13 +11,13 @@ const published = new Date(2024, 11, 17);
 export async function* books(file: FileHandle): AsyncGenerator<MultiBuilder> {
 	let rowI = 0;
 	let prevBcv: Bcv | undefined;
-	let builder = new MultiBuilder("", "", published, "");
+	let mb = new MultiBuilder("", "", published, "");
 
 	let verseRows: Row[] = [];
 	function flushVerse(bcv: Bcv) {
 		// console.log("flushVerse", bcv, diffChapter);
 		try {
-			pushVerse(bcv, verseRows, builder);
+			pushVerse(bcv, verseRows, mb);
 		} catch (err) {
 			console.error(bcv, verseRows);
 			throw err;
@@ -27,7 +27,7 @@ export async function* books(file: FileHandle): AsyncGenerator<MultiBuilder> {
 
 	for await (const line of file.readLines()) {
 		if (rowI++ === 0) continue; // header
-		if (prevBcv?.verse! > 1) continue;
+		if (prevBcv?.chapter! > 2) continue;
 
 		let [
 			hebSort,
@@ -77,10 +77,10 @@ export async function* books(file: FileHandle): AsyncGenerator<MultiBuilder> {
 				flushVerse(prevBcv);
 
 			if (diffBook) {
-				if (!builder.isEmpty()) yield builder;
+				if (!mb.isEmpty()) yield mb;
 
 				const title = verseRef.replace(/\s*\d+:\d+/, "");
-				builder = new MultiBuilder(
+				mb = new MultiBuilder(
 					newBcv.book,
 					"eng",
 					published,
@@ -88,9 +88,7 @@ export async function* books(file: FileHandle): AsyncGenerator<MultiBuilder> {
 					{ title },
 				);
 			}
-			if (diffChapter) {
-				builder.pushChapter(newBcv.chapter.toString());
-			}
+			if (diffChapter) mb.pushChapter(newBcv.chapter.toString());
 
 			prevBcv = newBcv;
 		}
@@ -135,6 +133,6 @@ export async function* books(file: FileHandle): AsyncGenerator<MultiBuilder> {
 
 	if (prevBcv) {
 		flushVerse(prevBcv);
-		if (!builder.isEmpty()) yield builder;
+		if (!mb.isEmpty()) yield mb;
 	}
 }

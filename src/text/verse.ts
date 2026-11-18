@@ -137,6 +137,7 @@ export function pushVerse(bcv: Bcv, rows: Row[], mb: MultiBuilder) {
 							// 	prev.misc["sourceWordId"] += `,${sourceWordId.toString()}`;
 							break;
 						default:
+							mb.maybePushSpace(t);
 							if (!insertedVerse) {
 								mb.pushVerse(bcv.verse.toString());
 								insertedVerse = true;
@@ -216,7 +217,6 @@ export function pushVerse(bcv: Bcv, rows: Row[], mb: MultiBuilder) {
 					continue;
 
 				const doc = new Builder(types.noteSchema, mb.book.meta);
-				doc.push(Plot.End, types.note.Paragraph.of("").create());
 				for (const wordOrTag of tokens) {
 					if (typeof wordOrTag == "string") doc.push(wordOrTag);
 					else {
