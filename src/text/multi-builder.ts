@@ -5,10 +5,11 @@ import type { Doc } from "@nerd-bible/schema";
 const newId = () => crypto.randomUUID();
 const bookLayers = [
 	"verses",
+	"notes",
+	"title",
 	"chapters",
 	"headings",
 	"paragraphs",
-	"notes",
 ] as const;
 const sourceLayers = ["verses", "chapters", "paragraphs"] as const;
 
@@ -95,7 +96,8 @@ export class MultiBuilder {
 		const heading = types.book.Heading.of(level).create(
 			text ? [Leaf.text(text, marks)] : [],
 		);
-		this.book.layers.headings.push(Plot.End, heading);
+		if (level == 1) this.book.layers.title.push(Plot.End, heading);
+		else this.book.layers.headings.push(Plot.End, heading);
 	}
 
 	pushBreak(class_: string = "") {

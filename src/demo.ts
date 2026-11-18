@@ -16,18 +16,14 @@ if (!ltr) parent.dir = "rtl";
 
 const wgDoc = types.bookSchema.docFromJSON(doc.content as any);
 
-const getLayer = (name: string) =>
-	ChangeSet.fromJSON(wgDoc.schema, doc.layers[name]);
+let csAll = ChangeSet.empty(wgDoc.length);
+for (const l in doc.layers) {
+	console.log(l);
+	const cs = ChangeSet.fromJSON(wgDoc.schema, doc.layers[l]);
+	csAll = csAll.compose(cs.transform(wgDoc, csAll));
+}
 
-
-let csLayered = getLayer("verses");
-csLayered = csLayered.compose(
-	getLayer("chapters").transform(wgDoc, csLayered, true),
-);
-csLayered = csLayered.compose(
-	getLayer("headings").transform(wgDoc, csLayered, true),
-);
-console.log(csLayered.toJSON());
+console.log(csAll.toJSON());
 
 // let csLayered;
 // for (const l of doc.layers) {
@@ -38,11 +34,11 @@ console.log(csLayered.toJSON());
 
 Wordgard.create({
 	parent,
-	doc: csLayered!.apply(wgDoc),
+	doc: csAll.apply(wgDoc),
 	// doc: wgDocLayered,
 	config: [
 		history(),
-		types.bookSchema.elements.map(e => GardState.schemaElement.of(e)),
+		types.bookSchema.elements.map((e) => GardState.schemaElement.of(e)),
 		GardState.textLTR.of(ltr),
 		Wordgard.styles({
 			"span.whitespace.ס": {
